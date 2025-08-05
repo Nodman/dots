@@ -1,4 +1,3 @@
-tap "homebrew/cask-fonts"
 tap "osx-cross/arm"
 tap "osx-cross/avr"
 brew "ast-grep"
