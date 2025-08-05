@@ -62,8 +62,9 @@ brew update
 # Install packages from .Brewfile
 log_info "Installing packages from .Brewfile..."
 if [[ -f "$DOTFILES_DIR/.Brewfile" ]]; then
-  cd "$DOTFILES_DIR"
-  brew bundle install
+  cp "$DOTFILES_DIR/.Brewfile" "$HOME/Brewfile"
+  brew bundle install --file="$HOME/Brewfile"
+  rm "$HOME/Brewfile"  # Clean up temporary file
   log_success "All packages installed from .Brewfile"
 else
   log_error ".Brewfile not found in $DOTFILES_DIR"
