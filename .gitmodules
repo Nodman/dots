@@ -1,15 +1,15 @@
 [submodule ".zsh/wd"]
 	path = .zsh/wd
-	url = https://github.com/mfaerevaag/wd
+	url = git@github.com:mfaerevaag/wd.git
 [submodule ".zsh/zsh-autosuggestions"]
 	path = .zsh/zsh-autosuggestions
-	url = https://github.com/zsh-users/zsh-autosuggestions
+	url = git@github.com:zsh-users/zsh-autosuggestions.git
 [submodule ".zsh/zsh-syntax-highlighting"]
 	path = .zsh/zsh-syntax-highlighting
-	url = https://github.com/zsh-users/zsh-syntax-highlighting
+	url = git@github.com:zsh-users/zsh-syntax-highlighting.git
 [submodule ".zsh/zsh-vim-mode"]
 	path = .zsh/zsh-vim-mode
-	url = https://github.com/softmoth/zsh-vim-mode
+	url = git@github.com:softmoth/zsh-vim-mode.git
 [submodule ".zsh/zsh-yarn-completions"]
 	path = .zsh/zsh-yarn-completions
-	url = https://github.com/g-plane/zsh-yarn-completions
+	url = git@github.com:g-plane/zsh-yarn-completions.git
