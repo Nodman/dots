@@ -59,14 +59,14 @@ fi
 log_info "Updating Homebrew..."
 brew update
 
-# Install packages from Brewfile
-log_info "Installing packages from Brewfile..."
-if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
+# Install packages from .Brewfile
+log_info "Installing packages from .Brewfile..."
+if [[ -f "$DOTFILES_DIR/.Brewfile" ]]; then
   cd "$DOTFILES_DIR"
   brew bundle install
-  log_success "All packages installed from Brewfile"
+  log_success "All packages installed from .Brewfile"
 else
-  log_error "Brewfile not found in $DOTFILES_DIR"
+  log_error ".Brewfile not found in $DOTFILES_DIR"
   exit 1
 fi
 
@@ -204,7 +204,7 @@ log_info "Please restart your terminal or run: source ~/.zshrc"
 
 echo ""
 log_info "What was installed/configured:"
-echo "  ✅ Homebrew + all packages from Brewfile"
+echo "  ✅ Homebrew + all packages from .Brewfile"
 echo "  ✅ Zsh with custom plugins and Pure prompt"
 echo "  ✅ Tmux configuration"
 echo "  ✅ Git configuration"
