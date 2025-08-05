@@ -1,0 +1,361 @@
+FUNCTION  <SNR>38_GetLastHeartbeat()
+    Defined: ~/.local/share/nvim/site/pack/packer/start/vim-wakatime/plugin/wakatime.vim:693
+Called 5 times
+Total time:   0.000347
+ Self time:   0.000347
+
+count  total (s)   self (s)
+    5              0.000068         if !s:last_heartbeat.last_activity_at || localtime() - s:last_heartbeat.last_activity_at > s:local_cache_expire
+    1              0.000058             if !filereadable(s:shared_state_file)
+                                            return {'last_activity_at': 0, 'last_heartbeat_at': 0, 'file': ''}
+    1              0.000001             endif
+    1              0.000058             let last = readfile(s:shared_state_file, '', 3)
+    1              0.000003             if len(last) == 3
+    1              0.000003                 let s:last_heartbeat.last_heartbeat_at = last[1]
+    1              0.000002                 let s:last_heartbeat.file = last[2]
+    1              0.000001             endif
+    5              0.000005         endif
+    5              0.000009         return s:last_heartbeat
+
+FUNCTION  <SNR>38_HandleActivity()
+    Defined: ~/.local/share/nvim/site/pack/packer/start/vim-wakatime/plugin/wakatime.vim:774
+Called 5 times
+Total time:   0.002635
+ Self time:   0.000826
+
+count  total (s)   self (s)
+    5   0.001526   0.000155         let file = s:GetCurrentFile()
+    5              0.000238         if !empty(file) && file !~ "-MiniBufExplorer-" && file !~ "--NO NAME--" && file !~ "^term:"
+    5   0.000414   0.000067             let last = s:GetLastHeartbeat()
+    5              0.000012             let now = localtime()
+                            
+                                        " Create a heartbeat when saving a file, when the current file
+                                        " changes, and when still editing the same file but enough time
+                                        " has passed since the last heartbeat.
+    5   0.000239   0.000155             if a:is_write || s:EnoughTimePassed(now, last) || file != last.file
+                                            call s:AppendHeartbeat(file, now, a:is_write, last)
+    5              0.000006             else
+    5              0.000017                 if now - s:last_heartbeat.last_activity_at > s:local_cache_expire
+    1   0.000016   0.000009                     call s:SetLastHeartbeatInMemory(now, last.last_heartbeat_at, last.file)
+    5              0.000004                 endif
+    5              0.000004             endif
+                            
+                                        " When buffering heartbeats disabled, no need to re-check the
+                                        " heartbeats buffer.
+    5              0.000009             if s:buffering_heartbeats_enabled
+                            
+                                            " Only send buffered heartbeats every s:send_buffer_seconds
+    5              0.000013                 if now - s:last_sent > s:send_buffer_seconds
+                                                call s:SendHeartbeats()
+    5              0.000004                 endif
+    5              0.000003             endif
+    5              0.000003         endif
+
+FUNCTION  <SNR>14_Remove_Matches()
+    Defined: /opt/homebrew/Cellar/neovim/0.8.3/share/nvim/runtime/plugin/matchparen.vim:196
+Called 229 times
+Total time:   0.001405
+ Self time:   0.001405
+
+count  total (s)   self (s)
+  229              0.000593   if exists('w:paren_hl_on') && w:paren_hl_on
+    1              0.000003     silent! call matchdelete(3)
+    1              0.000001     let w:paren_hl_on = 0
+  229              0.000134   endif
+
+FUNCTION  <SNR>51_is_runnable()
+    Defined: ~/.local/share/nvim/site/pack/packer/opt/spelunker.vim/autoload/spelunker.vim:214
+Called 5 times
+Total time:   0.000319
+ Self time:   0.000162
+
+count  total (s)   self (s)
+    5   0.000234   0.000077 	if spelunker#toggle#is_enabled() == 0
+                            		return 0
+    5              0.000003 	endif
+                            
+    5              0.000044 	if g:enable_spelunker_vim_on_readonly == 0 && &readonly
+                            		return 0
+    5              0.000003 	endif
+                            
+    5              0.000005 	return 1
+
+FUNCTION  spelunker#check_displayed_words()
+    Defined: ~/.local/share/nvim/site/pack/packer/opt/spelunker.vim/autoload/spelunker.vim:11
+Called 5 times
+Total time:   0.000442
+ Self time:   0.000123
+
+count  total (s)   self (s)
+    5   0.000373   0.000054 	if s:is_runnable() == 0
+                            		call s:clear_matches()
+                            		return 0
+    5              0.000003 	endif
+                            
+    5              0.000022 	if g:spelunker_check_type != g:spelunker_check_type_cursor_hold
+    5              0.000004 		return 0
+                            	endif
+                            
+                            	call spelunker#words#check_display_area()
+                            	return 1
+
+FUNCTION  <SNR>38_EnoughTimePassed()
+    Defined: ~/.local/share/nvim/site/pack/packer/start/vim-wakatime/plugin/wakatime.vim:723
+Called 5 times
+Total time:   0.000083
+ Self time:   0.000083
+
+count  total (s)   self (s)
+    5              0.000023         let prev = a:last.last_heartbeat_at
+    5              0.000029         if a:now - prev > g:wakatime_HeartbeatFrequency * 60
+                                        return s:true
+    5              0.000005         endif
+    5              0.000008         return s:false
+
+FUNCTION  <SNR>38_SetLastHeartbeatInMemory()
+    Defined: ~/.local/share/nvim/site/pack/packer/start/vim-wakatime/plugin/wakatime.vim:707
+Called 1 time
+Total time:   0.000007
+ Self time:   0.000007
+
+count  total (s)   self (s)
+    1              0.000006         let s:last_heartbeat = {'last_activity_at': a:last_activity_at, 'last_heartbeat_at': a:last_heartbeat_at, 'file': a:file}
+
+FUNCTION  <SNR>38_GetCurrentFile()
+    Defined: ~/.local/share/nvim/site/pack/packer/start/vim-wakatime/plugin/wakatime.vim:470
+Called 5 times
+Total time:   0.001371
+ Self time:   0.001371
+
+count  total (s)   self (s)
+    5              0.001358         return expand("%:p")
+
+FUNCTION  spelunker#toggle#is_enabled()
+    Defined: ~/.local/share/nvim/site/pack/packer/opt/spelunker.vim/autoload/spelunker/toggle.vim:65
+Called 5 times
+Total time:   0.000157
+ Self time:   0.000125
+
+count  total (s)   self (s)
+    5              0.000048 	if !exists('b:enable_spelunker_vim')
+    5   0.000097   0.000064 		if spelunker#toggle#is_enabled_global() == 1
+    5              0.000005 			return 1
+                            		endif
+                            
+                            		return 0
+                            	else
+                            		" b:enable_spelunker_vimがあればbuffer優先
+                            		if spelunker#toggle#is_enabled_buffer() == 1
+                            			return 1
+                            		else
+                            			return 0
+                            		endif
+                            
+                            		if spelunker#toggle#is_enabled_global() == 0
+                            			return 0
+                            		endif
+                            
+                            		return 1
+                            	endif
+
+FUNCTION  spelunker#toggle#is_enabled_global()
+    Defined: ~/.local/share/nvim/site/pack/packer/opt/spelunker.vim/autoload/spelunker/toggle.vim:88
+Called 5 times
+Total time:   0.000033
+ Self time:   0.000033
+
+count  total (s)   self (s)
+    5              0.000014 	if g:enable_spelunker_vim == 1
+    5              0.000008 		return 1
+                            	endif
+                            
+                            	return 0
+
+FUNCTION  <SNR>14_Highlight_Matching_Pair()
+    Defined: /opt/homebrew/Cellar/neovim/0.8.3/share/nvim/runtime/plugin/matchparen.vim:39
+Called 229 times
+Total time:   0.015609
+ Self time:   0.014204
+
+count  total (s)   self (s)
+                              " Remove any previous match.
+  229   0.004054   0.002649   call s:Remove_Matches()
+                            
+                              " Avoid that we remove the popup menu.
+                              " Return when there are no colors (looks like the cursor jumps).
+  229              0.000586   if pumvisible() || (&t_Co < 8 && !has("gui_running"))
+                                return
+  229              0.000136   endif
+                            
+                              " Get the character under the cursor and check if it's in 'matchpairs'.
+  229              0.000404   let c_lnum = line('.')
+  229              0.000242   let c_col = col('.')
+  229              0.000121   let before = 0
+                            
+  229              0.000309   let text = getline(c_lnum)
+  229              0.001627   let matches = matchlist(text, '\(.\)\=\%'.c_col.'c\(.\=\)')
+  229              0.000230   if empty(matches)
+                                let [c_before, c] = ['', '']
+  229              0.000074   else
+  229              0.000428     let [c_before, c] = matches[1:2]
+  229              0.000059   endif
+  229              0.001414   let plist = split(&matchpairs, '.\zs[:,]')
+  229              0.000299   let i = index(plist, c)
+  229              0.000126   if i < 0
+                                " not found, in Insert mode try character before the cursor
+  224              0.000330     if c_col > 1 && (mode() == 'i' || mode() == 'R')
+                                  let before = strlen(c_before)
+                                  let c = c_before
+                                  let i = index(plist, c)
+  224              0.000055     endif
+  224              0.000091     if i < 0
+                                  " not found, nothing to do
+  224              0.000120       return
+                                endif
+    5              0.000002   endif
+                            
+                              " Figure out the arguments for searchpairpos().
+    5              0.000005   if i % 2 == 0
+                                let s_flags = 'nW'
+                                let c2 = plist[i + 1]
+    5              0.000002   else
+    5              0.000005     let s_flags = 'nbW'
+    5              0.000005     let c2 = c
+    5              0.000008     let c = plist[i - 1]
+    5              0.000002   endif
+    5              0.000005   if c == '['
+                                let c = '\['
+                                let c2 = '\]'
+    5              0.000002   endif
+                            
+                              " Find the match.  When it was just before the cursor move it there for a
+                              " moment.
+    5              0.000004   if before > 0
+                                let has_getcurpos = exists("*getcurpos")
+                                if has_getcurpos
+                                  " getcurpos() is more efficient but doesn't exist before 7.4.313.
+                                  let save_cursor = getcurpos()
+                                else
+                                  let save_cursor = winsaveview()
+                                endif
+                                call cursor(c_lnum, c_col - before)
+    5              0.000001   endif
+                            
+    5              0.000023   if !has("syntax") || !exists("g:syntax_on")
+                                let s_skip = "0"
+    5              0.000002   else
+                                " Build an expression that detects whether the current cursor position is
+                                " in certain syntax types (string, comment, etc.), for use as
+                                " searchpairpos()'s skip argument.
+                                " We match "escape" for special items, such as lispEscapeSpecial, and
+                                " match "symbol" for lispBarSymbol.
+    5              0.000019     let s_skip = '!empty(filter(map(synstack(line("."), col(".")), ''synIDattr(v:val, "name")''), ' . '''v:val =~? "string\\|character\\|singlequote\\|escape\\|symbol\\|comment"''))'
+                                " If executing the expression determines that the cursor is currently in
+                                " one of the syntax types, then we want searchpairpos() to find the pair
+                                " within those syntax types (i.e., not skip).  Otherwise, the cursor is
+                                " outside of the syntax types and s_skip should keep its value so we skip
+                                " any matching pair inside the syntax types.
+                                " Catch if this throws E363: pattern uses more memory than 'maxmempattern'.
+    5              0.000005     try
+    5              0.000069       execute 'if ' . s_skip . ' | let s_skip = "0" | endif'
+                                catch /^Vim\%((\a\+)\)\=:E363/
+                                  " We won't find anything, so skip searching, should keep Vim responsive.
+                                  return
+    5              0.000005     endtry
+    5              0.000002   endif
+                            
+                              " Limit the search to lines visible in the window.
+    5              0.000010   let stoplinebottom = line('w$')
+    5              0.000008   let stoplinetop = line('w0')
+    5              0.000004   if i % 2 == 0
+                                let stopline = stoplinebottom
+    5              0.000002   else
+    5              0.000009     let stopline = stoplinetop
+    5              0.000001   endif
+                            
+                              " Limit the search time to 300 msec to avoid a hang on very long lines.
+                              " This fails when a timeout is not supported.
+    5              0.000011   if mode() == 'i' || mode() == 'R'
+                                let timeout = exists("b:matchparen_insert_timeout") ? b:matchparen_insert_timeout : g:matchparen_insert_timeout
+    5              0.000002   else
+    5              0.000018     let timeout = exists("b:matchparen_timeout") ? b:matchparen_timeout : g:matchparen_timeout
+    5              0.000001   endif
+    5              0.000003   try
+    5              0.002591     let [m_lnum, m_col] = searchpairpos(c, '', c2, s_flags, s_skip, stopline, timeout)
+                              catch /E118/
+                                " Can't use the timeout, restrict the stopline a bit more to avoid taking
+                                " a long time on closed folds and long lines.
+                                " The "viewable" variables give a range in which we can scroll while
+                                " keeping the cursor at the same position.
+                                " adjustedScrolloff accounts for very large numbers of scrolloff.
+                                let adjustedScrolloff = min([&scrolloff, (line('w$') - line('w0')) / 2])
+                                let bottom_viewable = min([line('$'), c_lnum + &lines - adjustedScrolloff - 2])
+                                let top_viewable = max([1, c_lnum-&lines+adjustedScrolloff + 2])
+                                " one of these stoplines will be adjusted below, but the current values are
+                                " minimal boundaries within the current window
+                                if i % 2 == 0
+                                  if has("byte_offset") && has("syntax_items") && &smc > 0
+                            	let stopbyte = min([line2byte("$"), line2byte(".") + col(".") + &smc * 2])
+                            	let stopline = min([bottom_viewable, byte2line(stopbyte)])
+                                  else
+                            	let stopline = min([bottom_viewable, c_lnum + 100])
+                                  endif
+                                  let stoplinebottom = stopline
+                                else
+                                  if has("byte_offset") && has("syntax_items") && &smc > 0
+                            	let stopbyte = max([1, line2byte(".") + col(".") - &smc * 2])
+                            	let stopline = max([top_viewable, byte2line(stopbyte)])
+                                  else
+                            	let stopline = max([top_viewable, c_lnum - 100])
+                                  endif
+                                  let stoplinetop = stopline
+                                endif
+                                let [m_lnum, m_col] = searchpairpos(c, '', c2, s_flags, s_skip, stopline)
+    5              0.000003   endtry
+                            
+    5              0.000005   if before > 0
+                                if has_getcurpos
+                                  call setpos('.', save_cursor)
+                                else
+                                  call winrestview(save_cursor)
+                                endif
+    5              0.000002   endif
+                            
+                              " If a match is found setup match highlighting.
+    5              0.000012   if m_lnum > 0 && m_lnum >= stoplinetop && m_lnum <= stoplinebottom 
+    1              0.000001     if exists('*matchaddpos')
+    1              0.000004       call matchaddpos('MatchParen', [[c_lnum, c_col - before], [m_lnum, m_col]], 10, 3)
+                                else
+                                  exe '3match MatchParen /\(\%' . c_lnum . 'l\%' . (c_col - before) . 'c\)\|\(\%' . m_lnum . 'l\%' . m_col . 'c\)/'
+    1              0.000000     endif
+    1              0.000001     let w:paren_hl_on = 1
+    5              0.000001   endif
+
+FUNCTIONS SORTED ON TOTAL TIME
+count  total (s)   self (s)  function
+  229   0.015609   0.014204  <SNR>14_Highlight_Matching_Pair()
+    5   0.002635   0.000826  <SNR>38_HandleActivity()
+  229   0.001405             <SNR>14_Remove_Matches()
+    5   0.001371             <SNR>38_GetCurrentFile()
+    5   0.000442   0.000123  spelunker#check_displayed_words()
+    5   0.000347             <SNR>38_GetLastHeartbeat()
+    5   0.000319   0.000162  <SNR>51_is_runnable()
+    5   0.000157   0.000125  spelunker#toggle#is_enabled()
+    5   0.000083             <SNR>38_EnoughTimePassed()
+    5   0.000033             spelunker#toggle#is_enabled_global()
+    1   0.000007             <SNR>38_SetLastHeartbeatInMemory()
+
+FUNCTIONS SORTED ON SELF TIME
+count  total (s)   self (s)  function
+  229   0.015609   0.014204  <SNR>14_Highlight_Matching_Pair()
+  229              0.001405  <SNR>14_Remove_Matches()
+    5              0.001371  <SNR>38_GetCurrentFile()
+    5   0.002635   0.000826  <SNR>38_HandleActivity()
+    5              0.000347  <SNR>38_GetLastHeartbeat()
+    5   0.000319   0.000162  <SNR>51_is_runnable()
+    5   0.000157   0.000125  spelunker#toggle#is_enabled()
+    5   0.000442   0.000123  spelunker#check_displayed_words()
+    5              0.000083  <SNR>38_EnoughTimePassed()
+    5              0.000033  spelunker#toggle#is_enabled_global()
+    1              0.000007  <SNR>38_SetLastHeartbeatInMemory()
+

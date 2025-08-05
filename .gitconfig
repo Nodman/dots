@@ -1,0 +1,28 @@
+[alias]
+	co = checkout
+	br = branch
+	cm = commit
+	st = status
+	hard = reset --hard
+  soft = reset --soft
+[diff]
+  tool = vscode
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+[merge]
+  tool = vscode
+[mergetool "vscode"]
+  cmd = code --wait $MERGED
+[difftool]
+	prompt = false
+[mergetool]
+	prompt = false
+[user]
+	name = Nodman
+	email = rewind-pewter.0e@icloud.com
+[core]
+	excludesfile = ~/.gitignore
+[init]
+	defaultBranch = main
+[pull]
+	rebase = false
