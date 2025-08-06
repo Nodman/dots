@@ -12,4 +12,4 @@
 	url = git@github.com:softmoth/zsh-vim-mode.git
 [submodule ".zsh/zsh-yarn-completions"]
 	path = .zsh/zsh-yarn-completions
-	url = git@github.com:g-plane/zsh-yarn-completions.git
+	url = git@github.com:chrisands/zsh-yarn-completions.git
