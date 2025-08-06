@@ -136,13 +136,15 @@ defaults write com.apple.screencapture disable-shadow -bool true
 # ===================================
 log_info "Configuring Safari..."
 
-# Enable Developer menu in Safari
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+# Note: Safari preferences are sandboxed and may require manual configuration
+log_info "Safari settings need to be configured manually:"
+echo "  - Open Safari → Develop menu (if not visible: Safari → Preferences → Advanced → Show Develop menu)"
+echo "  - For privacy: Safari → Preferences → Privacy → Prevent cross-site tracking"
 
-# Enable "Do Not Track"
-defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
+# These Safari defaults may not work due to sandboxing, but we'll try:
+defaults write com.apple.Safari IncludeDevelopMenu -bool true 2>/dev/null || log_warning "Safari developer menu setting failed (sandboxed)"
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true 2>/dev/null || true
+defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true 2>/dev/null || true
 
 # ===================================
 # Activity Monitor
