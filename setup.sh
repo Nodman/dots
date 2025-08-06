@@ -155,43 +155,13 @@ else
   log_warning "fnm not found, skipping Node.js setup"
 fi
 
-# macOS defaults
-log_info "Configuring macOS defaults..."
-
-# Dock: automatically hide and show
-defaults write com.apple.dock autohide -bool true
-
-# Dock: make icons smaller
-defaults write com.apple.dock tilesize -int 48
-
-# Finder: show hidden files
-defaults write com.apple.finder AppleShowAllFiles -bool true
-
-# Finder: show file extensions
-defaults write NSGlobalDomain AppleShowAllExtensions -bool true
-
-# Disable "Are you sure you want to open this application?" dialog
-defaults write com.apple.LaunchServices LSQuarantine -bool false
-
-# Enable tap to click
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-
-# Trackpad: enable three finger drag
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool true
-
-# Screenshots: save to Desktop/Screenshots
-mkdir -p "$HOME/Desktop/Screenshots"
-defaults write com.apple.screencapture location -string "$HOME/Desktop/Screenshots"
-
-# Screenshots: save as PNG
-defaults write com.apple.screencapture type -string "png"
-
-log_success "macOS defaults configured"
-
-# Restart affected applications
-log_info "Restarting affected applications..."
-killall Dock 2>/dev/null || true
-killall Finder 2>/dev/null || true
+# Configure macOS system defaults
+log_info "Configuring macOS system defaults..."
+if [[ -f "$DOTFILES_DIR/macos-defaults.sh" ]]; then
+  "$DOTFILES_DIR/macos-defaults.sh"
+else
+  log_warning "macos-defaults.sh not found, skipping macOS configuration"
+fi
 
 # Set zsh as default shell if it isn't already
 if [[ "$SHELL" != *"zsh"* ]]; then

@@ -68,6 +68,7 @@ git submodule update
 ```
 dotfiles/
 ├── setup.sh              # Main setup script
+├── macos-defaults.sh     # macOS system preferences
 ├── Brewfile              # Homebrew packages and casks
 ├── .zshrc                # Zsh configuration
 ├── .tmux.conf            # Tmux configuration
@@ -86,6 +87,22 @@ dotfiles/
     ├── zsh-vim-mode/
     ├── zsh-yarn-completions/
     └── wd/
+```
+
+## 🍎 macOS System Preferences
+
+The `macos-defaults.sh` script configures sensible macOS defaults:
+- **Dock**: Auto-hide, smaller icons, reduced animations
+- **Finder**: Show hidden files, extensions, path bars
+- **System**: Disable quarantine dialog, auto-correct, smart quotes  
+- **Trackpad**: Tap to click, three-finger drag
+- **Screenshots**: Saved to Desktop/Screenshots as PNG
+- **Safari**: Developer menu enabled
+- **Activity Monitor**: Show all processes
+
+### Run macOS defaults separately:
+```bash
+./macos-defaults.sh
 ```
 
 ## 🔧 Manual Steps After Setup
