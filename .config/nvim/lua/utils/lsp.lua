@@ -5,19 +5,7 @@ local M = {}
 
 ---@param opts? lsp.Client.filter
 function M.get_clients(opts)
-  local ret = {} ---@type vim.lsp.Client[]
-  if vim.lsp.get_clients then
-    ret = vim.lsp.get_clients(opts)
-  else
-    ---@diagnostic disable-next-line: deprecated
-    ret = vim.lsp.get_active_clients(opts)
-    if opts and opts.method then
-      ---@param client vim.lsp.Client
-      ret = vim.tbl_filter(function(client)
-        return client.supports_method(opts.method, opts.bufnr)
-      end, ret)
-    end
-  end
+  local ret = vim.lsp.get_clients(opts)
   return opts and opts.filter and vim.tbl_filter(opts.filter, ret) or ret
 end
 
@@ -118,39 +106,6 @@ function M.on_supports_method(method, fn)
   })
 end
 
----@return _.lspconfig.options
-function M.get_config(server)
-  local configs = require("lspconfig.configs")
-  return rawget(configs, server)
-end
-
----@return {default_config:lspconfig.Config}
-function M.get_raw_config(server)
-  local ok, ret = pcall(require, "lspconfig.configs." .. server)
-  if ok then
-    return ret
-  end
-  return require("lspconfig.server_configurations." .. server)
-end
-
-function M.is_enabled(server)
-  local c = M.get_config(server)
-  return c and c.enabled ~= false
-end
-
----@param server string
----@param cond fun( root_dir, config): boolean
-function M.disable(server, cond)
-  local util = require("lspconfig.util")
-  local def = M.get_config(server)
-  ---@diagnostic disable-next-line: undefined-field
-  def.document_config.on_new_config = util.add_hook_before(def.document_config.on_new_config, function(config, root_dir)
-    if cond(root_dir, config) then
-      config.enabled = false
-    end
-  end)
-end
-
 ---@alias lsp.Client.format {timeout_ms?: number, format_options?: table} | lsp.Client.filter
 
 M.action = setmetatable({}, {
@@ -166,25 +121,5 @@ M.action = setmetatable({}, {
     end
   end,
 })
-
----@class LspCommand: lsp.ExecuteCommandParams
----@field open? boolean
----@field handler? lsp.Handler
-
----@param opts LspCommand
-function M.execute(opts)
-  local params = {
-    command = opts.command,
-    arguments = opts.arguments,
-  }
-  if opts.open then
-    require("trouble").open({
-      mode = "lsp_command",
-      params = params,
-    })
-  else
-    return vim.lsp.buf_request(0, "workspace/executeCommand", params, opts.handler)
-  end
-end
 
 return M
