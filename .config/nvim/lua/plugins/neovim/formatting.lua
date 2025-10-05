@@ -49,12 +49,12 @@ return {
     config = function(_, opts)
       for _, ft in ipairs(prettier_ft) do
         opts.formatters_by_ft[ft] = opts.formatters_by_ft[ft] or {}
-        table.insert(opts.formatters_by_ft[ft], "prettierd")
+        table.insert(opts.formatters_by_ft[ft], "prettier")
       end
 
       for _, ft in ipairs(prettier_eslint_ft) do
         opts.formatters_by_ft[ft] = opts.formatters_by_ft[ft] or {}
-        vim.list_extend(opts.formatters_by_ft[ft], { "prettierd", "eslint_d" })
+        vim.list_extend(opts.formatters_by_ft[ft], { "prettier", "eslint_d" })
       end
 
       opts.formatters = opts.formatters or {}

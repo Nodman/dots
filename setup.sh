@@ -106,6 +106,7 @@ create_symlink "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
 # Config directories
 create_symlink "$DOTFILES_DIR/.config/kitty" "$HOME/.config/kitty"
 create_symlink "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
+create_symlink "$DOTFILES_DIR/.config/wezterm" "$HOME/.config/wezterm"
 create_symlink "$DOTFILES_DIR/.config/gh" "$HOME/.config/gh"
 create_symlink "$DOTFILES_DIR/.hammerspoon" "$HOME/.hammerspoon"
 

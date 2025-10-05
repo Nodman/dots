@@ -31,6 +31,12 @@ local palette = {
 local set_hl = vim.api.nvim_set_hl
 
 -- ----------------
+-- General
+-- ----------------
+
+set_hl(0, "Normal", { bg = "NONE" })
+
+-- ----------------
 -- diff
 -- ----------------
 

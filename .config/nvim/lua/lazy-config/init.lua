@@ -1,6 +1,5 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
-vim.uv = vim.uv or vim.loop
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
@@ -24,7 +23,6 @@ require("lazy").setup({
       return not vim.g.vscode
     end,
   },
-  -- { import = "plugins.always", cond = true },
   {
     import = "plugins.vscode",
     cond = function()
@@ -32,3 +30,4 @@ require("lazy").setup({
     end,
   },
 })
+

@@ -46,11 +46,13 @@ end
 enableVimNavigation()
 -- hs.application.enableSpotlightForNameSearches(true)
 
+local hotAppName = 'WezTerm'
+
 hs.hotkey.bind({ 'ctrl' }, 'escape', function()
-  local app = hs.application.get('kitty')
+  local app = hs.application.get(hotAppName)
   if app then
     if not app:mainWindow() then
-      app:selectMenuItem({ 'kitty', 'New OS window' })
+      app:selectMenuItem({ hotAppName, 'New OS window' })
       disableVimNavigation()
     elseif app:isFrontmost() then
       enableVimNavigation()
@@ -60,7 +62,7 @@ hs.hotkey.bind({ 'ctrl' }, 'escape', function()
       app:activate()
     end
   else
-    hs.application.launchOrFocus('kitty')
+    hs.application.launchOrFocus(hotAppName)
   end
 end)
 

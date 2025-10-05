@@ -8,6 +8,7 @@ M.setup = function()
   map("n", "<leader>e", ":Neotree toggle reveal float<CR>", { silent = true, noremap = false })
   map("n", "<leader>ge", ":Neotree float git_status<CR>", { silent = true, noremap = false })
   map("n", "<leader>be", ":Neotree float buffers<CR>", { silent = true, noremap = false })
+  map("n", "<leader>as", ":ClaudeCodeTreeAdd<cr>", { silent = true, noremap = false })
 
   print(NeoUtils.icons.git.added)
 

@@ -2,6 +2,8 @@ local map = vim.keymap.set
 
 -- set leader key
 map("n", "<Space>", "<Nop>", { silent = true })
+map("n", "<Esc><Esc>", "<Nop>", { silent = true })
+map("i", "<C-Space>", "<Nop>", { silent = true })
 map("i", "<C-Space>", "<Nop>", { silent = true })
 map("n", "<C-Space>", "<Nop>", { silent = true })
 
@@ -143,7 +145,7 @@ map("v", "<", "<gv")
 map("v", ">", ">gv")
 
 --exit terminal mode
-map("t", "<C-n>", "<C-\\><C-n>")
+map("t", "<C-n>", "<C-\\><C-n><C-w>h")
 
 -- alot of accidental presses
 map("n", "<S-q>", "<nop>")

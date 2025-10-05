@@ -10,10 +10,13 @@ export LANG=en_GB.UTF-8
 echo May the force be with you, $LOGNAME!
 # ------------------------------------------------------
 
+export PATH="$HOME/.local/bin:$PATH"
+
 #options
 setopt autocd
 
 SHARE="/opt/homebrew/share"
+
 fpath+=$SHARE/zsh/site-functions
 
 # wd
@@ -105,6 +108,12 @@ export PATH=$HOME/.fnm:$PATH
 export NODE_BINARY=$NODE_BINARY
 eval "$(fnm env --use-on-cd)"
 
-# issues with xcode finding node when building RN projects
-alias ln-node='ln -s $NODE_BINARY /usr/local/bin/node'
-alias unln-node='rm /usr/local/bin/node'
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Added by `rbenv init` on Wed  6 Aug 2025 18:09:20 EEST
+eval "$(rbenv init - --no-rehash zsh)"
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
+
+alias claude="/Users/spooner/.claude/local/claude"
