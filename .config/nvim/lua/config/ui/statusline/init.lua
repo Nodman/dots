@@ -1,4 +1,4 @@
-local ftMap = require('config.neovim.ui.statusline.well-known-file-types')
+local ftMap = require('config.ui.statusline.well-known-file-types')
 
 
 ---@alias ModeAttributes { name: string, highlight: string }
