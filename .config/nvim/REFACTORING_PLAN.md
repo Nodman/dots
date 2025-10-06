@@ -33,7 +33,7 @@ This document outlines a comprehensive refactoring plan for the Neovim configura
 - ⚠️ Inactive plugin configs from old LSP setup (~200 lines dead code)
 - ⚠️ Single-use utilities creating unnecessary abstraction
 - ⚠️ Commented code blocks not cleaned up
-- ⚠️ Minor typos: `innactive`, `pesistance`
+- ⚠️ Minor typos: `innactive`, `persistence`
 
 ---
 
@@ -84,7 +84,7 @@ mv lua/plugins/innactive archive/lsp-old-config
 
 #### 1.4 Fix Typos (15 min)
 **Renames:**
-- `lua/plugins/neovim/pesistance.lua` → `persistence.lua`
+- `lua/plugins/neovim/persistence.lua` → `persistence.lua`
 - Update imports referencing old names
 
 **Impact:** Better consistency
@@ -194,7 +194,7 @@ lua/plugins/
 │   ├── nvim-early-retirement.lua
 │   ├── nvim-jqx.lua
 │   ├── nvim-lsp-file-operations.lua
-│   ├── pesistance.lua
+│   ├── persistence.lua
 │   ├── tmux.lua
 │   ├── wakatime.lua
 │   └── window-picker.lua
@@ -227,7 +227,7 @@ mv grug-far.lua mini-*.lua nvim-surround.lua treesitter*.lua ts-comments.lua res
 mv lsp-native lsp
 mv formatting.lua lsp/
 mv git-signs.lua gitui.lua git/
-mv lazy-dev.lua mcp-hub.lua neoconf.lua nvim-*.lua pesistance.lua tmux.lua wakatime.lua window-picker.lua system/
+mv lazy-dev.lua mcp-hub.lua neoconf.lua nvim-*.lua persistence.lua tmux.lua wakatime.lua window-picker.lua system/
 mv colorizer.lua icons.lua render-markdown.lua snacks which-key.lua auto-dark-mode colorscheme neo-tree ui/
 
 # Flatten directory structure
@@ -339,7 +339,7 @@ Convert to metatable-based lazy loading instead of upfront loading.
   - [ ] Test affected features
   - [ ] Commit: "Remove debug prints and commented code"
 - [ ] 1.4: Fix typos
-  - [ ] Rename pesistance.lua
+  - [ ] Rename persistence.lua
   - [ ] Update imports
   - [ ] Test persistence plugin
   - [ ] Commit: "Fix plugin name typos"

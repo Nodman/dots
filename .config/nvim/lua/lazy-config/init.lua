@@ -17,17 +17,6 @@ if not vim.loop.fs_stat(lazypath) then
 end
 
 require("lazy").setup({
-  {
-    import = "plugins.neovim",
-    cond = function()
-      return not vim.g.vscode
-    end,
-  },
-  {
-    import = "plugins.vscode",
-    cond = function()
-      return vim.g.vscode
-    end,
-  },
+  { import = "plugins.neovim" },
 })
 

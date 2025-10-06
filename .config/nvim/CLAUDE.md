@@ -4,25 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a personal Neovim configuration repository built with Lua, designed to work in both Neovim and VSCode environments. The configuration uses lazy.nvim as the plugin manager and implements a sophisticated dual-environment loading system.
+This is a personal Neovim configuration repository built with Lua. The configuration uses lazy.nvim as the plugin manager and implements a modular loading system.
 
 ## Architecture
-
-### Dual Environment System
-
-The configuration dynamically loads different modules based on whether it's running in VSCode (`vim.g.vscode`) or native Neovim:
-
-- **VSCode mode**: Loads plugins/config from `lua/plugins/vscode/` and `lua/config/vscode/`
-- **Neovim mode**: Loads plugins/config from `lua/plugins/neovim/` and `lua/config/neovim/`
-
-This is controlled by:
-1. `lua/lazy-config/init.lua` - Lazy.nvim setup with conditional plugin imports
-2. `lua/loaders/config-loader.lua` - Recursive config file loader based on environment
 
 ### Config Loading System
 
 The `config-loader.lua` implements a recursive loading strategy:
-- Automatically loads all `.lua` files in the target environment directory
+- Automatically loads all `.lua` files from `lua/config/neovim/` directory
 - If a directory has an `init.lua`, loads that instead of sibling files
 - Always recurses into subdirectories
 - Silently handles missing directories
@@ -38,11 +27,10 @@ Access utilities anywhere as: `NeoUtils.lsp.on_attach()`, `NeoUtils.root()`, etc
 
 ### Plugin Organization
 
-Plugins are organized by environment:
-- `lua/plugins/neovim/` - Neovim-only plugins (LSP, treesitter, UI, etc.)
-  - May contain subdirectories with `init.lua` for complex plugin configurations
-  - Plugin files that have been disabled are moved to `lua/plugins/innactive/`
-- `lua/plugins/vscode/` - VSCode-specific plugins (minimal set)
+Plugins are organized in `lua/plugins/neovim/`:
+- Main plugin specifications (LSP, treesitter, UI, etc.)
+- May contain subdirectories with `init.lua` for complex plugin configurations
+- Plugin files that have been disabled are moved to `lua/plugins/innactive/`
 
 ### Key Configuration Files
 

@@ -92,15 +92,6 @@ map("n", "<Leader>wv", "<CMD>vsplit<CR>", { desc = "Window: Split vertical" })
 
 -- close window
 map("n", "<Leader>wd", "<CMD>wd<CR>")
---[[ map("n", "<Leader>wm", function()
-  require("utils.golden-ratio").refresh(5)
-end)
-map("n", "<Leader>tm", function()
-  require("utils.golden-ratio").toggleAutoRefresh()
-end)
-map("n", "<Leader>t=", function()
-  require("utils.window").equalizeWindows()
-end) ]]
 -- resize vertically
 map("n", "<Leader>H", "<CMD>vertical resize +5<CR>")
 -- resize vertically

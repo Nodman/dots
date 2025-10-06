@@ -10,8 +10,6 @@ M.setup = function()
   map("n", "<leader>be", ":Neotree float buffers<CR>", { silent = true, noremap = false })
   map("n", "<leader>as", ":ClaudeCodeTreeAdd<cr>", { silent = true, noremap = false })
 
-  print(NeoUtils.icons.git.added)
-
   require("neo-tree").setup({
     use_popups_for_input = true,
     default_component_configs = {
@@ -101,17 +99,6 @@ M.setup = function()
         ["<"] = "prev_source",
         [">"] = "next_source",
       },
-      -- popup = {
-      --   size = function(state)
-      --     local root_name = vim.fn.fnamemodify(state.path, ":~")
-      --     local root_len = string.len(root_name) + 4
-      --
-      --     return {
-      --       width = math.max(root_len, 70),
-      --       height = vim.o.lines - 6,
-      --     }
-      --   end,
-      -- },
     },
     filesystem = {
       find_command = "fd",
