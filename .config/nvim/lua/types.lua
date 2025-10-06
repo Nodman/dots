@@ -14,11 +14,9 @@ vim.g = {}
 ---@field notification utils.notification
 ---@field plugin utils.plugin
 ---@field window utils.window
----@field cursor utils.cursor
 ---@field common utils.common
 ---@field lsp utils.lsp
 ---@field root utils.root
----@field config utils.config
 _G.NeoUtils = {}
 
 ---@class vim.api.create_autocmd.callback.args

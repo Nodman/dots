@@ -99,6 +99,45 @@ M.capabilities = {
   },
 }
 
+-- LSP symbol kind filter configuration (inlined from utils/config.lua)
+-- Used in LSP symbol pickers to filter by symbol kind
+---@type table<string, string[]|boolean>?
+M.kind_filter = {
+  default = {
+    "Class",
+    "Constructor",
+    "Enum",
+    "Field",
+    "Function",
+    "Interface",
+    "Method",
+    "Module",
+    "Namespace",
+    "Package",
+    "Property",
+    "Struct",
+    "Trait",
+  },
+  markdown = false,
+  help = false,
+  -- you can specify a different filter for each filetype
+  lua = {
+    "Class",
+    "Constructor",
+    "Enum",
+    "Field",
+    "Function",
+    "Interface",
+    "Method",
+    "Module",
+    "Namespace",
+    -- "Package", -- remove package since luals uses it for control flow structures
+    "Property",
+    "Struct",
+    "Trait",
+  },
+}
+
 -- Server-specific configurations (optional overrides)
 -- These configs are applied AFTER loading lsp/*.lua files, allowing for overrides
 -- Only include servers here if you need to override settings from lsp/ files

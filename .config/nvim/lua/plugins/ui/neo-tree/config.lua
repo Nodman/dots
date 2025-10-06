@@ -1,5 +1,18 @@
 local M = {}
 
+-- Cursor management utilities (inlined from utils/cursor.lua)
+local guicursor_original = vim.o.guicursor
+
+local function hide_cursor()
+  vim.cmd("hi Cursor blend=100")
+  vim.cmd("set guicursor=" .. guicursor_original .. ",a:Cursor/lCursor")
+end
+
+local function restore_cursor()
+  vim.cmd("hi Cursor blend=0")
+  vim.cmd("set guicursor=" .. guicursor_original)
+end
+
 M.setup = function()
   local map = vim.keymap.set
 
@@ -33,29 +46,20 @@ M.setup = function()
     event_handlers = {
       {
         event = "neo_tree_buffer_enter",
-        handler = function()
-          NeoUtils.cursor.hideCursor()
-        end,
+        handler = hide_cursor,
       },
       {
         event = "neo_tree_buffer_leave",
-        handler = function()
-          -- Make this whatever your current Cursor highlight group is.
-          NeoUtils.cursor.restoreCursor()
-        end,
+        handler = restore_cursor,
       },
       {
         event = "neo_tree_popup_buffer_enter",
-        handler = function()
-          -- Make this whatever your current Cursor highlight group is.
-          NeoUtils.cursor.restoreCursor()
-        end,
+        handler = restore_cursor,
       },
       {
         event = "neo_tree_window_after_close",
         handler = function()
-          --auto close
-          NeoUtils.cursor.restoreCursor()
+          restore_cursor()
           NeoUtils.layout.autoRefresh()
         end,
       },

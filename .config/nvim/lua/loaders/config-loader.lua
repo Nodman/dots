@@ -63,9 +63,9 @@ local function load_recursive(current_fs_path, lua_base_path, parent_loaded_init
   end
 end
 
--- Main entry point: Loads Lua files from config/neovim directory
+-- Main entry point: Loads Lua files from the specified config directory
 function M.load(base_module_name)
-  local target_module_path = base_module_name .. ".neovim"
+  local target_module_path = base_module_name
 
   local config_base_path = vim.fn.stdpath("config")
   local lua_base_path = config_base_path .. path_sep .. "lua" .. path_sep

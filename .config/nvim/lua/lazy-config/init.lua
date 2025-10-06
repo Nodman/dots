@@ -17,6 +17,6 @@ if not vim.loop.fs_stat(lazypath) then
 end
 
 require("lazy").setup({
-  { import = "plugins.neovim" },
+  { import = "plugins" },
 })
 

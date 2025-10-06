@@ -11,6 +11,8 @@ function M.get()
   if M._keys then
     return M._keys
   end
+  -- Get lsp_config for kind_filter
+  local lsp_config = require("plugins.neovim.lsp-native.config")
     -- stylua: ignore
     M._keys =  {
       {"<F2>", vim.lsp.buf.rename, desc = 'Rename', has = 'rename'},
@@ -18,8 +20,8 @@ function M.get()
       { "<leader>cl", function() Snacks.picker.lsp_config() end, desc = "Lsp Info" },
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition", has = "definition" },
       { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
-      { "<leader>ss", function() Snacks.picker.lsp_symbols({ filter = NeoUtils.config.kind_filter}) end, desc = "LSP Symbols", has = "documentSymbol" },
-      { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols({ filter = NeoUtils.config.kind_filter }) end, desc = "LSP Workspace Symbols", has = "workspaceSymbol" },
+      { "<leader>ss", function() Snacks.picker.lsp_symbols({ filter = lsp_config.kind_filter}) end, desc = "LSP Symbols", has = "documentSymbol" },
+      { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols({ filter = lsp_config.kind_filter }) end, desc = "LSP Workspace Symbols", has = "workspaceSymbol" },
       { "gI", vim.lsp.buf.implementation, desc = "Goto Implementation" },
       { "gy", vim.lsp.buf.type_definition, desc = "Goto T[y]pe Definition" },
       { "gD", vim.lsp.buf.declaration, desc = "Goto Declaration" },
