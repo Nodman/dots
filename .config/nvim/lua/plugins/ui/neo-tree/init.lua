@@ -7,5 +7,5 @@ return {
     "s1n7ax/nvim-window-picker",
   },
   lazy = false,
-  config = require("plugins.neovim.neo-tree.config").setup,
+  config = require("plugins.ui.neo-tree.config").setup,
 }

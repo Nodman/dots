@@ -22,7 +22,7 @@ return {
       -- vim.api.nvim_set_option_value("background", "dark", {})
       vim.opt.termguicolors = true
       vim.cmd.colorscheme("nord")
-      require("plugins.neovim.colorscheme.nord-highlights")
+      require("plugins.ui.colorscheme.nord-highlights")
     end,
     set_light_mode = function()
       -- vim.api.nvim_set_option_value("background", "light", {})
@@ -35,7 +35,7 @@ return {
         },
       })
       vim.cmd.colorscheme("catppuccin-latte")
-      require("plugins.neovim.colorscheme.catpuccin-highlights")
+      require("plugins.ui.colorscheme.catpuccin-highlights")
     end,
   },
 }
