@@ -17,6 +17,11 @@ if not vim.loop.fs_stat(lazypath) then
 end
 
 require("lazy").setup({
-  { import = "plugins" },
+  { import = "plugins.ai" },
+  { import = "plugins.completion" },
+  { import = "plugins.editor" },
+  { import = "plugins.git" },
+  { import = "plugins.lsp" },
+  { import = "plugins.system" },
+  { import = "plugins.ui" },
 })
-

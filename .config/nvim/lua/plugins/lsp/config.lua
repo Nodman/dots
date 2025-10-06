@@ -264,23 +264,28 @@ function M.setup()
     end)
   end
 
-  -- 13. Create Snacks toggle for virtual text
+  -- 13. Create Snacks toggle for virtual text (deferred until Snacks is loaded)
   -- Allows toggling diagnostic virtual text on/off with <leader>tv
-  Snacks.toggle({
-    name = "LSP virtual text",
-    get = function()
-      return not not vim.diagnostic.config().virtual_text
-    end,
-    set = function()
-      if not vim.diagnostic.config().virtual_text then
-        vim.diagnostic.config({ virtual_text = M.diagnostics.virtual_text })
-      else
-        vim.diagnostic.config({
-          virtual_text = false,
-        })
-      end
-    end,
-  }):map("<leader>tv")
+  vim.schedule(function()
+    local ok, snacks = pcall(require, "snacks")
+    if ok and snacks.toggle then
+      snacks.toggle({
+        name = "LSP virtual text",
+        get = function()
+          return not not vim.diagnostic.config().virtual_text
+        end,
+        set = function()
+          if not vim.diagnostic.config().virtual_text then
+            vim.diagnostic.config({ virtual_text = M.diagnostics.virtual_text })
+          else
+            vim.diagnostic.config({
+              virtual_text = false,
+            })
+          end
+        end,
+      }):map("<leader>tv")
+    end
+  end)
 
   -- 14. Enable all LSP servers
   -- This is the native API replacement for lspconfig.setup()
