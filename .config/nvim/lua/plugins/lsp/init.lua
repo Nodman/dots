@@ -69,14 +69,14 @@ return {
   -- Native LSP Configuration
   {
     name = "native-lsp-config",
-    dir = vim.fn.stdpath("config") .. "/lua/plugins/neovim/lsp-native",
+    dir = vim.fn.stdpath("config") .. "/lua/plugins/lsp",
     lazy = false,
     priority = 100,
     dependencies = {
       "williamboman/mason.nvim",
     },
     config = function()
-      require("plugins.neovim.lsp-native.config").setup()
+      require("plugins.lsp.config").setup()
     end,
   },
 }

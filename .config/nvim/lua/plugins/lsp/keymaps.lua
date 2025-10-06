@@ -12,7 +12,7 @@ function M.get()
     return M._keys
   end
   -- Get lsp_config for kind_filter
-  local lsp_config = require("plugins.neovim.lsp-native.config")
+  local lsp_config = require("plugins.lsp.config")
     -- stylua: ignore
     M._keys =  {
       {"<F2>", vim.lsp.buf.rename, desc = 'Rename', has = 'rename'},

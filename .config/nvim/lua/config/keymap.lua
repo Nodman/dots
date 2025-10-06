@@ -141,6 +141,11 @@ map("t", "<C-n>", "<C-\\><C-n><C-w>h")
 -- alot of accidental presses
 map("n", "<S-q>", "<nop>")
 
+-- Setup inlay hints toggle when Snacks is available
 if vim.lsp.inlay_hint then
-  Snacks.toggle.inlay_hints():map("<leader>th")
+  vim.schedule(function()
+    if Snacks and Snacks.toggle and Snacks.toggle.inlay_hints then
+      Snacks.toggle.inlay_hints():map("<leader>th")
+    end
+  end)
 end

@@ -233,12 +233,12 @@ function M.setup()
   -- 9. Setup LspAttach for keymaps
   -- This runs whenever an LSP client attaches to a buffer
   NeoUtils.lsp.on_attach(function(client, buffer)
-    require("plugins.neovim.lsp-native.keymaps").on_attach(client, buffer)
+    require("plugins.lsp.keymaps").on_attach(client, buffer)
   end)
 
   -- 10. Setup dynamic capability handling for keymaps
   -- This handles when LSP servers dynamically register new capabilities
-  NeoUtils.lsp.on_dynamic_capability(require("plugins.neovim.lsp-native.keymaps").on_attach)
+  NeoUtils.lsp.on_dynamic_capability(require("plugins.lsp.keymaps").on_attach)
 
   -- 11. Enable inlay hints when server supports them
   if M.inlay_hints.enabled then
