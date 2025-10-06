@@ -15,12 +15,30 @@ return {
       words = { enabled = true },
       terminal = { enabled = true },
       picker = {
+        layout = {
+          preset = "ivy_split", -- or "default", "vertical", "sidebar", "dropdown", "vscode"
+          layout = {
+            title_pos = "center",
+            width = 0.8,
+          },
+        },
+        formatters = {
+          file = {
+            filename_first = true,
+            -- truncate = 80,
+            icon_width = 2,
+          },
+        },
         win = {
           input = {
             keys = {
               ["<a-c>"] = {
                 "toggle_cwd",
                 mode = { "n", "i" },
+              },
+              ["<leader>as"] = {
+                "claude_send",
+                mode = { "n" },
               },
             },
           },
@@ -34,13 +52,68 @@ return {
             p:set_cwd(current == root and cwd or root)
             p:find()
           end,
+          ---@param p snacks.Picker
+          claude_send = function(p)
+            local selected = p:selected()
+
+            if #selected == 0 then
+              NeoUtils.notification.warn("No items selected")
+              return
+            end
+
+            -- Load claudecode plugin
+            local ok, claudecode = pcall(require, "claudecode")
+            if not ok then
+              NeoUtils.notification.error("Claude Code plugin not loaded")
+              return
+            end
+
+            -- Collect unique file paths
+            local unique_paths = {}
+            local seen = {}
+            for _, item in ipairs(selected) do
+              if item.file and not seen[item.file] then
+                table.insert(unique_paths, item.file)
+                seen[item.file] = true
+              end
+            end
+
+            if #unique_paths == 0 then
+              NeoUtils.notification.warn("No files in selection")
+              return
+            end
+
+            -- Send each file to Claude Code
+            local success_count = 0
+            for i, file_path in ipairs(unique_paths) do
+              local success, err = pcall(
+                claudecode.send_at_mention,
+                file_path,
+                nil,
+                nil,
+                "snacks-picker-integration"
+              )
+
+              if success then
+                success_count = success_count + 1
+                -- Add delay to prevent Claude Code CLI from dropping files
+                vim.wait(100)
+              else
+                NeoUtils.notification.error(string.format("Failed to send %s: %s", file_path, err or "unknown error"))
+              end
+            end
+
+            if success_count > 0 then
+              NeoUtils.notification.info(string.format("Sent %d file(s) to Claude Code", success_count))
+            end
+          end,
         },
       },
     },
     keys = {
       -- Top Pickers & Explorer
       {
-        "<leader>space",
+        "<leader><space>",
         function()
           Snacks.picker.smart()
         end,
@@ -213,20 +286,6 @@ return {
           Snacks.picker.autocmds()
         end,
         desc = "Autocmds",
-      },
-      {
-        "<leader>sb",
-        function()
-          Snacks.picker.lines()
-        end,
-        desc = "Buffer Lines",
-      },
-      {
-        "<leader>sc",
-        function()
-          Snacks.picker.command_history()
-        end,
-        desc = "Command History",
       },
       {
         "<leader>sC",

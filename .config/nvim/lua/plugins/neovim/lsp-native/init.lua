@@ -26,7 +26,9 @@ return {
         "lua-language-server",
         "vtsls",
         "eslint-lsp",
-        "sourcekit-lsp",
+        "json-lsp",
+        "yaml-language-server",
+        "graphql-language-service-cli",
         "stylua",
         "shfmt",
       }

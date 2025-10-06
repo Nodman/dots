@@ -50,16 +50,24 @@ Plugins are organized by environment:
 - `lua/config/neovim/keymap.lua` - All keybindings (space = leader, comma = localleader)
 - `lua/config/neovim/options.lua` - Vim options
 - `lua/config/neovim/autocmd.lua` - Autocommands
-- `lua/plugins/neovim/lsp/init.lua` - LSP configuration with Mason integration
+- `lua/plugins/neovim/lsp-native/` - Native LSP configuration using Neovim 0.11+ APIs
+  - `init.lua` - Mason plugin spec with auto-install
+  - `config.lua` - Main LSP setup (diagnostics, capabilities, server configs)
+  - `keymaps.lua` - LSP keymaps with Snacks picker integration
 - `lua/plugins/neovim/formatting.lua` - Conform.nvim formatter setup
 
-### LSP Setup
+### LSP Setup (Native Neovim 0.11+)
 
-LSP uses a centralized configuration approach:
-1. `NeoUtils.lsp.setup()` - Initializes LSP handlers and dynamic capability support
-2. `NeoUtils.lsp.on_attach()` - Registers keymaps and LSP features per buffer
-3. Server configs in `opts.servers` table with auto-install via Mason
-4. Inlay hints and codelens auto-enabled when server supports them
+LSP uses native Neovim 0.11+ APIs without nvim-lspconfig plugin:
+1. `vim.lsp.config()` - Configures LSP servers (global `*` and per-server)
+2. `vim.lsp.enable()` - Activates servers by name (auto-starts on matching filetypes)
+3. `NeoUtils.lsp.setup()` - Initializes dynamic capability handling
+4. `NeoUtils.lsp.on_attach()` - Registers keymaps when LSP attaches to buffers
+5. **Mason integration** - Installs servers to `~/.local/share/nvim/mason/bin/`, native LSP calls them directly (no mason-lspconfig bridge needed)
+6. **Server configs** - Defined in `M.server_configs` table in `config.lua` (lua_ls, vtsls, eslint, sourcekit)
+7. **Capabilities** - Merged from `vim.lsp.protocol.make_client_capabilities()` + Blink.cmp + custom file operation support
+8. **Keymaps** - Snacks pickers for gd/gr/symbols, standard vim.lsp.buf for other operations
+9. Inlay hints and codelens auto-enabled when server supports them
 
 ### Key Conventions
 
@@ -100,16 +108,27 @@ LSP uses a centralized configuration approach:
 
 ### LSP Operations
 
-Mason manages LSP servers, formatters, and linters:
+Mason manages LSP servers, formatters, and linters. Native Neovim LSP APIs handle server lifecycle:
 ```bash
 # Open Mason UI
 :Mason
 
+# Check LSP status
+:LspInfo
+
 # LSP commands in code:
-gd          # Go to definition (via Snacks.picker)
-gr          # References (via Snacks.picker)
-<leader>ss  # Document symbols
-<leader>bf  # Format buffer
+gd             # Go to definition (via Snacks.picker)
+gr             # References (via Snacks.picker)
+<leader>ss     # Document symbols (via Snacks.picker)
+<leader>sS     # Workspace symbols (via Snacks.picker)
+gI             # Go to implementation
+gy             # Go to type definition
+K              # Hover documentation
+<F2>           # Rename symbol
+<leader>ca     # Code action
+<leader>bf     # Format buffer
+<leader>tv     # Toggle virtual text diagnostics
+gh             # Show diagnostic float
 ```
 
 ### Plugin Management
@@ -152,12 +171,40 @@ Configured in `lua/plugins/neovim/claude-code/init.lua`:
 
 ## Technical Details
 
+### Adding New LSP Servers
+
+To add a new LSP server:
+1. Add server name to `M.servers` array in `lua/plugins/neovim/lsp-native/config.lua`
+2. Add server-specific config to `M.server_configs` table (optional, for custom settings/root_dir)
+3. Add Mason package name to `ensure_installed` in `lua/plugins/neovim/lsp-native/init.lua`
+4. Reference `pack/nvim/start/nvim-lspconfig/lua/lspconfig/configs/` for server configuration examples
+
+Example minimal server addition:
+```lua
+-- In config.lua
+M.servers = { "lua_ls", "vtsls", "eslint", "sourcekit", "pyright" }
+
+-- Optional server-specific config
+M.server_configs.pyright = {
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = "basic",
+      },
+    },
+  },
+}
+```
+
 ### Custom LSP Utilities (`utils/lsp.lua`)
 
-- `on_attach()` - Register callbacks when LSP attaches
-- `on_supports_method()` - Run callbacks when LSP supports specific capabilities
-- `on_dynamic_capability()` - Handle dynamic LSP capability registration
-- `get_clients()` - Get LSP clients with filtering
+Native-compatible utilities for LSP management:
+- `setup()` - Initializes dynamic capability handling (wraps `client/registerCapability` handler)
+- `on_attach()` - Register callbacks when LSP attaches to buffers (LspAttach autocmd)
+- `on_supports_method()` - Run callbacks when LSP supports specific capabilities (LspSupportsMethod event)
+- `on_dynamic_capability()` - Handle dynamic LSP capability registration (LspDynamicCapability event)
+- `get_clients()` - Get LSP clients with filtering (wraps `vim.lsp.get_clients()`)
+- `action` - Metatable for quick code actions (e.g., `NeoUtils.lsp.action.source()`)
 
 ### Root Directory Detection (`utils/root.lua`)
 

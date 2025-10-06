@@ -78,32 +78,32 @@
 ---@type vim.lsp.Config
 return {
   -- Command to start the language server
-  cmd = { 'vtsls', '--stdio' },
+  cmd = { "vtsls", "--stdio" },
 
   -- Initialization options sent when starting the server
   init_options = {
-    hostInfo = 'neovim',
+    hostInfo = "neovim",
   },
 
   -- Filetypes this server handles
   filetypes = {
-    'javascript',
-    'javascriptreact',
-    'javascript.jsx',
-    'typescript',
-    'typescriptreact',
-    'typescript.tsx',
-    'vue',
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescriptreact",
+    "typescript.tsx",
+    "vue",
   },
 
   -- Project root detection markers
   -- The LSP looks for these files/directories to determine the project root
   -- For monorepos, vtsls will automatically handle multiple packages
   root_markers = {
-    'package.json',
-    'tsconfig.json',
-    'jsconfig.json',
-    '.git',
+    "package.json",
+    "tsconfig.json",
+    "jsconfig.json",
+    ".git",
   },
 
   -- Support single file mode when no root is found
@@ -127,7 +127,7 @@ return {
         parameterNames = {
           -- Show parameter names for all literals except function calls
           -- Options: "none" | "literals" | "all"
-          enabled = 'literals',
+          enabled = "literals",
           -- Suppress hints when parameter name matches the argument name
           suppressWhenArgumentMatchesName = true,
         },
@@ -184,7 +184,7 @@ return {
       inlayHints = {
         -- Parameter hints
         parameterNames = {
-          enabled = 'literals',
+          enabled = "literals",
           suppressWhenArgumentMatchesName = true,
         },
 

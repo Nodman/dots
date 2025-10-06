@@ -1,13 +1,56 @@
 ---@class LspNativeConfig
 local M = {}
 
--- List of LSP servers to enable
--- These will be activated via vim.lsp.enable()
+-- Get list of installed LSP servers from Mason
+---@return string[] List of LSP server names
+function M.get_installed_servers()
+  local has_mason, mason_registry = pcall(require, "mason-registry")
+
+  local servers = {}
+  local installed_packages = {}
+
+  -- Mason package name → LSP server name mapping
+  local package_to_server = {
+    ["lua-language-server"] = "lua_ls",
+    ["vtsls"] = "vtsls",
+    ["eslint-lsp"] = "eslint",
+    ["json-lsp"] = "jsonls",
+    ["yaml-language-server"] = "yamlls",
+    ["graphql-language-service-cli"] = "graphql",
+    ["typescript-language-server"] = "ts_ls",
+    ["pyright"] = "pyright",
+    ["rust-analyzer"] = "rust_analyzer",
+    ["gopls"] = "gopls",
+    -- Add more mappings as needed
+  }
+
+  for _, package in ipairs(mason_registry.get_installed_packages()) do
+    local package_name = package.name
+    table.insert(installed_packages, package_name)
+    local server_name = package_to_server[package_name]
+
+    if server_name then
+      table.insert(servers, server_name)
+    end
+  end
+
+  -- Debug info
+  -- NeoUtils.notification.info("Mason installed packages: " .. table.concat(installed_packages, ", "))
+  -- NeoUtils.notification.info("Detected LSP servers: " .. table.concat(servers, ", "))
+
+  return servers
+end
+
+-- List of LSP servers to enable (fallback if Mason is not available)
+-- If Mason is installed, this list is auto-generated from installed packages
 M.servers = {
-  "lua_ls",
-  "vtsls",
-  "eslint",
-  "sourcekit",
+  -- "lua_ls",
+  -- "vtsls",
+  -- "eslint",
+  -- "sourcekit",
+  -- "jsonls",
+  -- "yamlls",
+  -- "graphql",
 }
 
 -- Diagnostic configuration
@@ -56,62 +99,19 @@ M.capabilities = {
   },
 }
 
--- Server-specific configurations
--- Applied via vim.lsp.config(server_name, { settings, root_dir, capabilities, etc. })
+-- Server-specific configurations (optional overrides)
+-- These configs are applied AFTER loading lsp/*.lua files, allowing for overrides
+-- Only include servers here if you need to override settings from lsp/ files
+-- or if the server doesn't have a dedicated lsp/*.lua file
 M.server_configs = {
-  lua_ls = {
-    settings = {
-      Lua = {
-        workspace = {
-          checkThirdParty = false,
-        },
-        codeLens = {
-          enable = true,
-        },
-        completion = {
-          callSnippet = "Replace",
-        },
-        doc = {
-          privateName = { "^_" },
-        },
-      },
-    },
-  },
-
-  vtsls = {
-    settings = {
-      experimental = {
-        completion = {
-          enableServerSideFuzzyMatch = true,
-        },
-      },
-    },
-  },
-
-  eslint = {
-    settings = {
-      -- helps eslint find the eslintrc when it's placed in a subfolder instead of the cwd root
-      workingDirectories = { mode = "auto" },
-      format = true,
-    },
-  },
-
-  sourcekit = {
-    root_dir = function(filename)
-      local util = require("lspconfig.util")
-      return util.root_pattern("buildServer.json")(filename)
-        or util.root_pattern("*.xcodeproj", "*.xcworkspace")(filename)
-        or vim.fs.dirname(vim.fs.find(".git", { path = filename, upward = true })[1])
-        or util.root_pattern("Package.swift")(filename)
-    end,
-    capabilities = {
-      workspace = {
-        didChangeWatchedFiles = {
-          dynamicRegistration = true,
-        },
-      },
-    },
-  },
+  -- Example override (commented out - lsp/*.lua files contain full configs):
+  -- lua_ls = {
+  --   settings = {
+  --     Lua = {
+  --       workspace = { checkThirdParty = false },
+  --     },
+  --   },
+  -- },
 }
 
 ---Setup native LSP configuration
@@ -149,7 +149,36 @@ function M.setup()
     capabilities = capabilities,
   })
 
-  -- 6. Configure server-specific settings
+  -- 6. Determine which servers to enable
+  -- Try to get installed servers from Mason, fallback to M.servers
+  local servers_to_enable = M.get_installed_servers()
+  if #servers_to_enable == 0 then
+    servers_to_enable = M.servers
+  end
+
+  -- 7. Load server configs with fallback to nvim-lspconfig reference
+  -- Neovim automatically loads lsp/*.lua files, so we only need to handle fallback
+  -- Priority: local lsp/ dir (auto-loaded by Neovim) → nvim-lspconfig/lsp/ (manual fallback) → M.server_configs
+  local local_lsp_dir = vim.fn.stdpath("config") .. "/lsp"
+  local lspconfig_lsp_dir = vim.fn.stdpath("config") .. "/pack/nvim/start/nvim-lspconfig/lsp"
+
+  for _, server_name in ipairs(servers_to_enable) do
+    local config_file = local_lsp_dir .. "/" .. server_name .. ".lua"
+    local fallback_file = lspconfig_lsp_dir .. "/" .. server_name .. ".lua"
+
+    -- Only load fallback if local config doesn't exist (Neovim loads local automatically)
+    if vim.fn.filereadable(config_file) ~= 1 and vim.fn.filereadable(fallback_file) == 1 then
+      local ok, server_config = pcall(dofile, fallback_file)
+      if ok and server_config then
+        -- Merge capabilities
+        server_config.capabilities =
+          vim.tbl_deep_extend("force", vim.deepcopy(capabilities), server_config.capabilities or {})
+        vim.lsp.config(server_name, server_config)
+      end
+    end
+  end
+
+  -- 8. Apply configs from M.server_configs table (for manual overrides)
   -- Each server gets its own configuration via vim.lsp.config(server_name, opts)
   for server_name, config in pairs(M.server_configs) do
     local server_config = vim.deepcopy(config)
@@ -162,17 +191,17 @@ function M.setup()
     vim.lsp.config(server_name, server_config)
   end
 
-  -- 7. Setup LspAttach for keymaps
+  -- 9. Setup LspAttach for keymaps
   -- This runs whenever an LSP client attaches to a buffer
   NeoUtils.lsp.on_attach(function(client, buffer)
     require("plugins.neovim.lsp-native.keymaps").on_attach(client, buffer)
   end)
 
-  -- 8. Setup dynamic capability handling for keymaps
+  -- 10. Setup dynamic capability handling for keymaps
   -- This handles when LSP servers dynamically register new capabilities
   NeoUtils.lsp.on_dynamic_capability(require("plugins.neovim.lsp-native.keymaps").on_attach)
 
-  -- 9. Enable inlay hints when server supports them
+  -- 11. Enable inlay hints when server supports them
   if M.inlay_hints.enabled then
     NeoUtils.lsp.on_supports_method("textDocument/inlayHint", function(client, buffer)
       if
@@ -185,7 +214,7 @@ function M.setup()
     end)
   end
 
-  -- 10. Enable code lens when server supports them
+  -- 12. Enable code lens when server supports them
   if M.codelens.enabled and vim.lsp.codelens then
     NeoUtils.lsp.on_supports_method("textDocument/codeLens", function(client, buffer)
       vim.lsp.codelens.refresh()
@@ -196,7 +225,7 @@ function M.setup()
     end)
   end
 
-  -- 11. Create Snacks toggle for virtual text
+  -- 13. Create Snacks toggle for virtual text
   -- Allows toggling diagnostic virtual text on/off with <leader>tv
   Snacks.toggle({
     name = "LSP virtual text",
@@ -214,10 +243,10 @@ function M.setup()
     end,
   }):map("<leader>tv")
 
-  -- 12. Enable all LSP servers
+  -- 14. Enable all LSP servers
   -- This is the native API replacement for lspconfig.setup()
   -- It automatically starts servers when opening matching filetypes
-  vim.lsp.enable(M.servers)
+  vim.lsp.enable(servers_to_enable)
 end
 
 return M

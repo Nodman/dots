@@ -16,8 +16,10 @@ function M.get()
       {"<F2>", vim.lsp.buf.rename, desc = 'Rename', has = 'rename'},
       {"gh", vim.diagnostic.open_float, desc = 'Hover'},
       { "<leader>cl", function() Snacks.picker.lsp_config() end, desc = "Lsp Info" },
-      { "gd", vim.lsp.buf.definition, desc = "Goto Definition", has = "definition" },
-      { "gr", vim.lsp.buf.references, desc = "References", nowait = true },
+      { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition", has = "definition" },
+      { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
+      { "<leader>ss", function() Snacks.picker.lsp_symbols({ filter = NeoUtils.config.kind_filter}) end, desc = "LSP Symbols", has = "documentSymbol" },
+      { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols({ filter = NeoUtils.config.kind_filter }) end, desc = "LSP Workspace Symbols", has = "workspaceSymbol" },
       { "gI", vim.lsp.buf.implementation, desc = "Goto Implementation" },
       { "gy", vim.lsp.buf.type_definition, desc = "Goto T[y]pe Definition" },
       { "gD", vim.lsp.buf.declaration, desc = "Goto Declaration" },
@@ -69,12 +71,6 @@ function M.resolve(buffer)
     return {}
   end
   local spec = vim.tbl_extend("force", {}, M.get())
-  local opts = NeoUtils.plugin.opts("nvim-lspconfig")
-  local clients = NeoUtils.lsp.get_clients({ bufnr = buffer })
-  for _, client in ipairs(clients) do
-    local maps = opts.servers[client.name] and opts.servers[client.name].keys or {}
-    vim.list_extend(spec, maps)
-  end
   return Keys.resolve(spec)
 end
 
