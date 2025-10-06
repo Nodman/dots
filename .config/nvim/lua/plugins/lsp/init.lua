@@ -76,7 +76,7 @@ return {
       "williamboman/mason.nvim",
     },
     config = function()
-      require("plugins.lsp.config").setup()
+      require("plugins.lsp._config").setup()
     end,
   },
 }
