@@ -70,16 +70,3 @@ NeoUtils.common.createAugroup({
   },
 })
 
-NeoUtils.common.createAugroup({
-  name = "cmd_restore_cursor",
-  autocmds = {
-    {
-      event = "CmdlineEnter",
-      pattern = ":",
-      callback = function()
-        NeoUtils.cursor.restoreCursor()
-      end,
-      desc = "Restore cursor position on command line enter",
-    },
-  },
-})

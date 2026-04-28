@@ -24,7 +24,7 @@ return {
       open_in_current_tab = false,
       keep_terminal_focus = true, -- If true, moves focus back to terminal after diff opens
     },
-    terminal_cmd = "~/.claude/local/claude", -- Point to local installation
+    terminal_cmd = "~/.local/bin/claude", -- Point to local installation
     terminal = {
       ---@module "snacks"
       ---@type snacks.win.Config|{}

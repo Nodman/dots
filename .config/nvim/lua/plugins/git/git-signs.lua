@@ -28,9 +28,30 @@ return {
           text = "│",
         },
       },
+      signs_staged = {
+        add = {
+          text = "│",
+        },
+        change = {
+          text = "│",
+        },
+        delete = {
+          text = "│",
+        },
+        topdelete = {
+          text = "│",
+        },
+        changedelete = {
+          text = "│",
+        },
+        untracked = {
+          text = "│",
+        },
+      },
       preview_config = {
         border = "none",
       },
+      signs_staged_enable = true,
       on_attach = function(bufnr)
         local function map(mode, lhs, rhs, opts)
           opts = vim.tbl_extend("force", { noremap = true, silent = true }, opts or {})

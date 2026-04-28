@@ -1,69 +1,73 @@
-local ftMap = require('config.ui.statusline.well-known-file-types')
+-- ============================================================================
+-- STATUSLINE MAIN MODULE
+-- ============================================================================
+-- Custom statusline implementation with caching for performance.
+-- Architecture:
+-- - cache.lua: Caching system for expensive computations
+-- - utils.lua: Helper functions for statusline components
+-- - well-known-file-types.lua: Filetype display mappings
+-- ============================================================================
 
+local cache = require("config.ui.statusline.cache")
+local utils = require("config.ui.statusline.utils")
 
----@alias ModeAttributes { name: string, highlight: string }
-
----@type table<string, ModeAttributes>
-local modesMap = {
-  ['n'] = { name = 'nrm', highlight = 'ModeBlockNormal' },
-  ['i'] = { name = 'ins', highlight = 'ModeBlockInsert' },
-  ['R'] = { name = 'rpl', highlight = 'ModeBlockReplace' },
-  ['v'] = { name = 'vis', highlight = 'ModeBlockVisual' },
-  ['V'] = { name = 'vln', highlight = 'ModeBlockVisualLine' },
-  [' '] = { name = 'vbl', highlight = 'ModeBlockVisualBlock' },
-  ['c'] = { name = 'com', highlight = 'ModeBlockCommand' },
-  ['t'] = { name = 'ter', highlight = 'ModeBlockTerminal' },
-}
-
-local statusLineRest = table.concat({
-  '%=',
-  '%#GeneralBlock#',
-  '%p%% ',
-  '%l:%c ',
-})
-
---- @param ft string
---- @return string
-local function getFt(ft)
-  if ft == '' then
-    return '-'
-  end
-
-  return ftMap[ft] or ft
-end
-
---- @return ModeAttributes
-local function getModeAttributes()
-  local mode = vim.api.nvim_get_mode().mode
-  local attributes = modesMap[mode]
-
-  if not attributes then
-    -- More robust fallback
-    local fallback_hl = modesMap['n'] and modesMap['n'].highlight or 'ModeBlockNormal' -- Default highlight if 'n' isn't in map
-    attributes = { name = mode, highlight = fallback_hl }
-  end
-
-  return attributes
-end
+-- ============================================================================
+-- MAIN STATUSLINE FUNCTION (with caching)
+-- ============================================================================
 
 --- @return string
 function ActiveStatusLine()
-  local modeAttributes = getModeAttributes()
+  -- Get current context
+  local modeAttributes = utils.getModeAttributes()
+  local win_width = vim.fn.winwidth(0)
+  local filepath = vim.fn.expand("%:.")
+  local filetype = vim.bo.ft
+  local filetype_display = utils.getFt(filetype)
+  local modified = vim.bo.modified
 
-  return string.format(
-    '%s %s %s %s %s %s %s %s %s ',
-    '%#' .. modeAttributes.highlight .. '#',
-    modeAttributes.name,
-    '%#FileBlock#',
-    vim.fn.expand('%:.'),
-    '%#GeneralBlock#',
-    '%m',
-    statusLineRest,
-    '%#FtBlock#',
-    getFt(vim.bo.ft)
-  )
+  -- Check cache validity
+  local cached = cache.get_cache()
+  if cached and cache.is_cache_valid(cached, win_width, filepath, filetype, modeAttributes.name, modified) then
+    -- Cache hit: reconstruct statusline with current mode highlight
+    -- (mode highlight can change more frequently than the filepath computation)
+    return utils.build_statusline(
+      modeAttributes.highlight,
+      modeAttributes.name,
+      cached.trimmed_filepath,
+      filetype_display
+    )
+  end
+
+  -- Cache miss: compute trimmed filepath
+  local available_width = utils.calculateAvailableWidth(modeAttributes.name, filetype_display)
+  local trimmed_filepath = utils.trimFilePath(filepath, available_width)
+
+  -- Build the final statusline
+  local result =
+    utils.build_statusline(modeAttributes.highlight, modeAttributes.name, trimmed_filepath, filetype_display)
+
+  -- Update cache
+  cache.set_cache({
+    win_width = win_width,
+    filepath = filepath,
+    filetype = filetype,
+    mode_name = modeAttributes.name,
+    modified = modified,
+    trimmed_filepath = trimmed_filepath,
+    result = result,
+  })
+
+  return result
 end
 
+-- ============================================================================
+-- STATUSLINE SETUP
+-- ============================================================================
+
+-- Initialize cache invalidation autocommands
+cache.setup()
+
+-- Configure statusline display
 vim.o.showmode = false
 vim.o.laststatus = 3
-vim.o.statusline = '%!v:lua.ActiveStatusLine()'
+vim.o.statusline = "%!v:lua.ActiveStatusLine()"

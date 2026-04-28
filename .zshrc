@@ -116,4 +116,17 @@ eval "$(rbenv init - --no-rehash zsh)"
 
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
 
-alias claude="/Users/spooner/.claude/local/claude"
+
+alias ln-node='ln -s $NODE_BINARY /Users/spooner/.local/bin/node'
+alias unln-node='rm /Users/spooner/.local/bin/node'
+
+# bun completions
+[ -s "/Users/spooner/.bun/_bun" ] && source "/Users/spooner/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+#WOL
+alias wake-pc='ssh spooner@192.168.88.1 \"/tool wol interface=bridge mac=7C:10:C9:BE:4F:FD"'
+

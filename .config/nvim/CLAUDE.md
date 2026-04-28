@@ -2,202 +2,145 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Overview
+## Commands
 
-This is a personal Neovim configuration repository built with Lua. The configuration uses lazy.nvim as the plugin manager and implements a modular loading system.
+### Formatting
+- **Format Lua files**: `stylua .` - Formats all Lua files according to stylua.toml configuration (2-space indentation, 120 column width, auto-prefer double quotes)
+
+### Package Management
+- **Install Node dependencies**: `pnpm install` - Installs mcp-hub and other Node.js dependencies
+- **Update lazy.nvim plugins**: Open Neovim and run `:Lazy sync` - Updates all plugins and generates lazy-lock.json
+
+### LSP Management
+- **Install LSP servers**: Open Neovim and run `:Mason` - Manages LSP servers, formatters, and linters
+- **Check LSP status**: Open a file and use `<leader>cl` - Shows LSP configuration and active servers
 
 ## Architecture
 
-### Config Loading System
+### Bootstrap Flow
+1. **init.lua** - Entry point that loads NeoUtils global utilities and lazy-config
+2. **loaders/neo-utils.lua** - Loads all utility modules from `lua/utils/` into `_G.NeoUtils` namespace
+3. **loaders/config-loader.lua** - Recursively loads configuration from `lua/config/` with init.lua precedence logic:
+   - If a directory has init.lua, load it and skip sibling files
+   - Otherwise, load all sibling .lua files in the directory
+4. **lua/config/** - Core Neovim configuration (options, keymaps, commands, autocmds)
 
-The `config-loader.lua` implements a recursive loading strategy:
-- Automatically loads all `.lua` files from `lua/config/neovim/` directory
-- If a directory has an `init.lua`, loads that instead of sibling files
-- Always recurses into subdirectories
-- Silently handles missing directories
+### Plugin System (lazy.nvim)
+Plugins are organized by category in `lua/plugins/`:
+- **ai/** - AI integrations (Copilot, Claude Code)
+- **completion/** - Completion engine (blink.cmp)
+- **editor/** - Editor enhancements (treesitter, surround, mini.diff, mini.pairs, grug-far, rest)
+- **git/** - Git integrations (gitsigns, gitui)
+- **lsp/** - Native LSP configuration (see LSP Architecture below)
+- **system/** - System integrations (tmux, persistence, window-picker, mcp-hub, neoconf, lazy-dev)
+- **ui/** - UI components (snacks.nvim, neo-tree, colorschemes, colorizer, render-markdown, which-key)
 
-### Global Utilities (_G.NeoUtils)
+Each plugin file returns a LazySpec table. Plugins with complex configuration may have subdirectories (e.g., `ui/neo-tree/`, `lsp/lib/`).
 
-All utility functions are automatically loaded into `_G.NeoUtils` by `lua/loaders/neo-utils.lua`:
-- Scans `lua/utils/*.lua` and assigns each module to `_G.NeoUtils[module_name]`
-- Available utilities: `layout`, `icons`, `notification`, `plugin`, `window`, `cursor`, `common`, `lsp`, `root`, `config`
-- Type definitions in `lua/types.lua` provide IntelliSense for NeoUtils
+### LSP Architecture (Native Neovim LSP)
+The configuration uses **Neovim's native LSP system** (vim.lsp.config/enable) instead of nvim-lspconfig plugin:
 
-Access utilities anywhere as: `NeoUtils.lsp.on_attach()`, `NeoUtils.root()`, etc.
+**Entry point**: `lua/plugins/lsp/init.lua`
+- Returns lazy.nvim spec for Mason and native-lsp-config plugin
 
-### Plugin Organization
+**Core configuration**: `lua/plugins/lsp/lib/config.lua`
+1. Initializes NeoUtils.lsp for dynamic capability handling
+2. Initializes Mason integration (auto-install servers)
+3. Configures diagnostics display
+4. Merges capabilities from blink.cmp into global LSP config
+5. Loads server configurations in order of precedence:
+   - **lsp/*.lua** (project-specific configs, auto-loaded by Neovim)
+   - **pack/nvim/start/nvim-lspconfig/lsp/*.lua** (fallback reference configs)
+   - **M.server_configs** (manual overrides in constants.lua)
+6. Registers keymaps on LspAttach and dynamic capability events
+7. Enables inlay hints and codelens for supporting servers
+8. Enables LSP servers via vim.lsp.enable()
 
-Plugins are organized in `lua/plugins/neovim/`:
-- Main plugin specifications (LSP, treesitter, UI, etc.)
-- May contain subdirectories with `init.lua` for complex plugin configurations
-- Plugin files that have been disabled are moved to `lua/plugins/innactive/`
+**Server configurations**: `lsp/*.lua`
+- Custom per-server configurations (lua_ls, vtsls, eslint, graphql, sourcekit)
+- Return standard vim.lsp.ClientConfig tables
+- Loaded automatically by Neovim on LSP start
 
-### Key Configuration Files
+**Helper modules**:
+- **lib/constants.lua** - Diagnostic signs, inlay hints, codelens, capabilities, kind filters, server overrides
+- **lib/mason.lua** - Mason integration for server installation
+- **lib/keymaps.lua** - LSP keymaps with capability checks (uses Snacks.picker for definitions/references)
 
-- `init.lua` - Entry point: loads NeoUtils, lazy-config, and config-loader
-- `lua/config/neovim/keymap.lua` - All keybindings (space = leader, comma = localleader)
-- `lua/config/neovim/options.lua` - Vim options
-- `lua/config/neovim/autocmd.lua` - Autocommands
-- `lua/plugins/neovim/lsp-native/` - Native LSP configuration using Neovim 0.11+ APIs
-  - `init.lua` - Mason plugin spec with auto-install
-  - `config.lua` - Main LSP setup (diagnostics, capabilities, server configs)
-  - `keymaps.lua` - LSP keymaps with Snacks picker integration
-- `lua/plugins/neovim/formatting.lua` - Conform.nvim formatter setup
+### Global Utilities (NeoUtils)
+Utility modules in `lua/utils/` are automatically loaded into `_G.NeoUtils`:
+- **NeoUtils.common** - Common helper functions
+- **NeoUtils.icons** - Icon definitions
+- **NeoUtils.layout** - Layout utilities
+- **NeoUtils.lsp** - LSP helper functions:
+  - `on_attach(fn, name?)` - Register LSP attach callback
+  - `on_dynamic_capability(fn)` - Handle dynamic capability registration
+  - `on_supports_method(method, fn)` - Run callback when method is supported
+  - `action[action_name]()` - Execute code actions by kind (e.g., NeoUtils.lsp.action.source)
+- **NeoUtils.notification** - Notification utilities (via Snacks)
+- **NeoUtils.plugin** - Plugin management utilities
+- **NeoUtils.root** - Project root detection
+- **NeoUtils.window** - Window management utilities
 
-### LSP Setup (Native Neovim 0.11+)
+### UI System (Snacks.nvim)
+The config heavily relies on `folke/snacks.nvim` for UI components:
+- **Picker** (lua/plugins/ui/snacks.lua) - Fuzzy finder for files, grep, LSP, git, etc.
+  - Custom action `toggle_cwd` - Toggles between project root and cwd (<a-c>)
+  - Custom action `claude_send` - Sends selected files to Claude Code (<leader>as)
+- **Notifications** - Notification system
+- **Input/Notifier** - Input prompts and notifications
+- **Terminal** - Terminal integration
+- **Toggle** - Toggle utilities for settings
+- **Words** - Word highlight and navigation
+- **Scroll** - Smooth scrolling
 
-LSP uses native Neovim 0.11+ APIs without nvim-lspconfig plugin:
-1. `vim.lsp.config()` - Configures LSP servers (global `*` and per-server)
-2. `vim.lsp.enable()` - Activates servers by name (auto-starts on matching filetypes)
-3. `NeoUtils.lsp.setup()` - Initializes dynamic capability handling
-4. `NeoUtils.lsp.on_attach()` - Registers keymaps when LSP attaches to buffers
-5. **Mason integration** - Installs servers to `~/.local/share/nvim/mason/bin/`, native LSP calls them directly (no mason-lspconfig bridge needed)
-6. **Server configs** - Defined in `M.server_configs` table in `config.lua` (lua_ls, vtsls, eslint, sourcekit)
-7. **Capabilities** - Merged from `vim.lsp.protocol.make_client_capabilities()` + Blink.cmp + custom file operation support
-8. **Keymaps** - Snacks pickers for gd/gr/symbols, standard vim.lsp.buf for other operations
-9. Inlay hints and codelens auto-enabled when server supports them
+### Statusline (Custom Implementation)
+Custom statusline in `lua/config/ui/statusline/`:
+- **well-known-file-types.lua** - File type definitions for icons/labels
+- Uses NeoUtils for rendering
 
-### Key Conventions
+## Key Patterns
 
-1. **Leader keys**: `<Space>` (leader), `,` (localleader)
-2. **Keymap prefixes**:
-   - `<leader>f` - File/finder operations (Snacks.picker)
-   - `<leader>b` - Buffer operations
-   - `<leader>w` - Window operations
-   - `<leader>g` - Git operations
-   - `<leader>s` - Search operations
-   - `<leader>a` - AI/Claude Code operations
-   - `<leader>d` - Diff operations
-   - `<leader>t` - Toggle operations
-3. **TMUX integration**: `<C-w>hjkl` navigate between Neovim and TMUX panes
-4. **Plugin specs**: Return table from plugin files, lazy.nvim auto-loads them
-
-## Common Operations
-
-### Testing Configuration Changes
-
-```bash
-# Reload current Lua file
-:luafile %
-
-# Or use keymap
-<leader>feR
-```
-
-### Accessing Config Files
-
-```bash
-# Open init.lua
-<leader>fed
-
-# Find config files with picker
-<leader>fc
-```
-
-### LSP Operations
-
-Mason manages LSP servers, formatters, and linters. Native Neovim LSP APIs handle server lifecycle:
-```bash
-# Open Mason UI
-:Mason
-
-# Check LSP status
-:LspInfo
-
-# LSP commands in code:
-gd             # Go to definition (via Snacks.picker)
-gr             # References (via Snacks.picker)
-<leader>ss     # Document symbols (via Snacks.picker)
-<leader>sS     # Workspace symbols (via Snacks.picker)
-gI             # Go to implementation
-gy             # Go to type definition
-K              # Hover documentation
-<F2>           # Rename symbol
-<leader>ca     # Code action
-<leader>bf     # Format buffer
-<leader>tv     # Toggle virtual text diagnostics
-gh             # Show diagnostic float
-```
-
-### Plugin Management
-
-```bash
-# Lazy plugin manager UI
-:Lazy
-
-# Update plugins
-:Lazy update
-
-# Check plugin status
-:Lazy check
-```
-
-### Formatting
-
-Uses `conform.nvim` with per-filetype formatters:
-- Lua: stylua
-- Shell: shfmt
-- JavaScript/TypeScript: prettier + eslint_d
-- Other web formats: prettier
-
-Format with `<leader>bf` or automatically via LSP fallback.
-
-### Git Integration
-
-- GitUI for terminal git interface (via `gitui.lua` plugin)
-- Git operations via Snacks.picker (`<leader>g*` keymaps)
-- Inline diff viewing with mini-diff
-
-### Claude Code Integration
-
-Configured in `lua/plugins/neovim/claude-code/init.lua`:
-- Toggle: `<C-\>` or `<leader>ac`
-- Focus: `<leader>aa`
-- Add buffer: `<leader>ab`
-- Diff accept/deny: `<leader>da` / `<leader>dr`
-- Terminal runs from `~/.claude/local/claude`
-
-## Technical Details
-
-### Adding New LSP Servers
-
-To add a new LSP server:
-1. Add server name to `M.servers` array in `lua/plugins/neovim/lsp-native/config.lua`
-2. Add server-specific config to `M.server_configs` table (optional, for custom settings/root_dir)
-3. Add Mason package name to `ensure_installed` in `lua/plugins/neovim/lsp-native/init.lua`
-4. Reference `pack/nvim/start/nvim-lspconfig/lua/lspconfig/configs/` for server configuration examples
-
-Example minimal server addition:
+### Plugin Configuration Pattern
 ```lua
--- In config.lua
-M.servers = { "lua_ls", "vtsls", "eslint", "sourcekit", "pyright" }
+return {
+  "author/plugin-name",
+  event = "VeryLazy", -- or lazy = false for immediate load
+  opts = { ... }, -- options table passed to setup()
+  config = function(_, opts)
+    require("plugin-name").setup(opts)
+  end,
+}
+```
 
--- Optional server-specific config
-M.server_configs.pyright = {
+### LSP Server Configuration Pattern
+Create `lsp/{server_name}.lua`:
+```lua
+return {
+  cmd = { "server-command" },
+  filetypes = { "filetype" },
+  root_markers = { ".git" },
   settings = {
-    python = {
-      analysis = {
-        typeCheckingMode = "basic",
-      },
-    },
+    -- server-specific settings
   },
 }
 ```
 
-### Custom LSP Utilities (`utils/lsp.lua`)
+### Utility Module Pattern
+Create `lua/utils/{module_name}.lua`:
+```lua
+local M = {}
+-- functions here
+return M
+```
+Available globally as `NeoUtils.{module_name}` after init.
 
-Native-compatible utilities for LSP management:
-- `setup()` - Initializes dynamic capability handling (wraps `client/registerCapability` handler)
-- `on_attach()` - Register callbacks when LSP attaches to buffers (LspAttach autocmd)
-- `on_supports_method()` - Run callbacks when LSP supports specific capabilities (LspSupportsMethod event)
-- `on_dynamic_capability()` - Handle dynamic LSP capability registration (LspDynamicCapability event)
-- `get_clients()` - Get LSP clients with filtering (wraps `vim.lsp.get_clients()`)
-- `action` - Metatable for quick code actions (e.g., `NeoUtils.lsp.action.source()`)
+### Custom Loader Pattern
+The config-loader skips loading sibling files when a directory has init.lua. This prevents double-loading and allows directory-based organization with explicit exports.
 
-### Root Directory Detection (`utils/root.lua`)
+## Important Notes
 
-The config includes sophisticated project root detection for LSP and file operations.
-
-### Type Safety
-
-The codebase uses EmmyLua annotations (`---@class`, `---@type`, `---@param`) for type checking with lua_ls LSP.
+- **No nvim-lspconfig dependency**: The config uses Neovim's native LSP system (vim.lsp.config/enable). nvim-lspconfig is only referenced in pack/ for fallback server configs.
+- **Mason auto-install**: Servers in `lua/plugins/lsp/init.lua` ensure_installed list are automatically installed on startup.
+- **Blink.cmp integration**: Completion capabilities are merged from blink.cmp into LSP config.
+- **Dynamic capabilities**: The config handles dynamic LSP capability registration (e.g., server enables formatting mid-session).
+- **Snacks-first UI**: Most pickers, notifications, and UI elements use Snacks.nvim instead of telescope/notify/other plugins.

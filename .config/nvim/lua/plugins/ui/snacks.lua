@@ -7,7 +7,10 @@ return {
       notify = { enabled = true },
       nottifier = { enabled = true },
       input = { enabled = true },
-      notifier = { enabled = true },
+      notifier = {
+        enabled = true,
+        timeout = 10000, -- 10 seconds (default is 3000)
+      },
       scope = { enabled = true },
       scroll = { enabled = true },
       statuscolumn = { enabled = false }, -- we set this in options.lua
@@ -19,13 +22,12 @@ return {
           preset = "ivy_split", -- or "default", "vertical", "sidebar", "dropdown", "vscode"
           layout = {
             title_pos = "center",
-            width = 0.8,
           },
         },
         formatters = {
           file = {
             filename_first = true,
-            -- truncate = 80,
+            truncate = 200,
             icon_width = 2,
           },
         },

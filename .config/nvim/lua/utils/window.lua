@@ -5,6 +5,7 @@ local api = vim.api
 ---@field isRelative fun(windowId: number): boolean Check if a window is relative (float/popup)
 ---@field checkIs fun(optName: string, optValue: any, windowId?: number): boolean Check a buffer-local option value for a window
 ---@field checkIsOctoWindow fun(windowId: number): boolean Check if window is an octo window
+---@field checkIsDapUiWindow fun(windowId: number): boolean Check if window is a DAP UI window
 ---@field wrapWindow fun(id: number) Set options for a "wrapped" (minimized) window
 ---@field unwrapWindow fun(id: number) Set options for an "unwrapped" (maximized) window
 ---@field equalizeWindows fun() Equalize window sizes and apply default view options
@@ -48,14 +49,29 @@ function M.checkIsOctoWindow(windowId)
   return (filePath and filePath:find("^octo://") == 1) or M.checkIs("filetype", "octo_panel", windowId)
 end
 
+--- Check if window is a DAP UI window (filetype starts with "dapui_")
+---@param windowId number Window ID
+---@return boolean
+function M.checkIsDapUiWindow(windowId)
+  local bufferId = api.nvim_win_get_buf(windowId)
+  if bufferId == 0 then
+    return false
+  end
+  local ft = api.nvim_get_option_value("filetype", { buf = bufferId })
+
+  local isDapUiBuffer = ft:find("^dapui_") ~= nil or ft == "dap-repl"
+
+  return isDapUiBuffer
+end
+
 --- Set options for a "wrapped" (minimized) window
 ---@param id number Window ID
 ---@return nil
 function M.wrapWindow(id)
   api.nvim_set_option_value("wrap", false, { win = id })
 
-  -- Don't change number settings for grug-far or terminal buffers
-  if M.checkIs("filetype", "grug-far", id) or M.checkIs("buftype", "terminal", id) then
+  -- Don't change number settings for grug-far, terminal, or dap-ui buffers
+  if M.checkIs("filetype", "grug-far", id) or M.checkIs("buftype", "terminal", id) or M.checkIsDapUiWindow(id) then
     return
   end
 
@@ -69,8 +85,8 @@ end
 function M.unwrapWindow(id)
   api.nvim_set_option_value("wrap", true, { win = id })
 
-  -- Don't change number settings for grug-far, codecompanion, or terminal buffers
-  if M.checkIs("filetype", "grug-far", id) or M.checkIs("filetype", "codecompanion") or M.checkIs("buftype", "terminal", id) then
+  -- Don't change number settings for grug-far, codecompanion, terminal, or dap-ui buffers
+  if M.checkIs("filetype", "grug-far", id) or M.checkIs("filetype", "codecompanion") or M.checkIs("buftype", "terminal", id) or M.checkIsDapUiWindow(id) then
     return
   end
 
@@ -88,7 +104,7 @@ function M.equalizeWindows()
 
   for _, id in ipairs(windowsIds) do
     -- Apply settings only to windows that are NOT relative AND NOT neo-tree
-    if not M.isRelative(id) and not M.checkIs("filetype", "neo-tree", id) then
+    if not M.isRelative(id) and not M.checkIs("filetype", "neo-tree", id) and not M.checkIsDapUiWindow(id) then
       -- Apply the "wrapped" state settings
       M.wrapWindow(id)
     end

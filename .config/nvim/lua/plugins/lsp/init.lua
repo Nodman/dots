@@ -28,9 +28,10 @@ return {
         "eslint-lsp",
         "json-lsp",
         "yaml-language-server",
-        "graphql-language-service-cli",
+        -- "graphql-language-service-cli",
         "stylua",
         "shfmt",
+        "debugpy",
       }
 
       -- Install missing packages
@@ -76,7 +77,7 @@ return {
       "williamboman/mason.nvim",
     },
     config = function()
-      require("plugins.lsp._config").setup()
+      require("plugins.lsp.lib.config").setup()
     end,
   },
 }

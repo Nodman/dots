@@ -1,5 +1,6 @@
 ---@diagnostic disable-next-line: undefined-field
 local api = vim.api
+local map = vim.keymap.set
 
 ---@class utils.layout
 ---@field refresh fun(size?: number)
@@ -11,7 +12,7 @@ local M = {}
 M.config = {
   minWidth = 15, -- Minimum width for non-focused windows
   autoRefreshExclusions = {
-    filetype = { "toggleterm", "neo-tree" },
+    filetype = { "toggleterm" },
     buftype = { "quickfix" },
   },
   -- Functions to calculate width for specific filetypes
@@ -195,6 +196,7 @@ local function shouldAutoRefresh()
     return false
   end
 
+  local currentWin = api.nvim_get_current_win()
   -- Use configurations from M.config
   for type, exclusions in pairs(M.config.autoRefreshExclusions) do
     for _, exclusion in ipairs(exclusions) do
@@ -225,5 +227,7 @@ function M.toggleAutoRefresh()
 
   M.disableAutoRefresh = not M.disableAutoRefresh
 end
+
+map("n", "wT", M.toggleAutoRefresh)
 
 return M
