@@ -20,10 +20,16 @@ return {
       "<leader>sf",
       function()
         local grug = require("grug-far")
-        grug.with_visual_selection({ prefills = { paths = vim.fn.expand("%") } })
+        local opts = { prefills = { paths = vim.fn.expand("%") } }
+        local mode = vim.fn.mode()
+        if mode == "v" or mode == "V" or mode == "\22" then
+          grug.with_visual_selection(opts)
+        else
+          grug.open(opts)
+        end
       end,
       mode = { "n", "v" },
-      desc = "Search and Replace",
+      desc = "Search and Replace (current file)",
     },
   },
   config = function()

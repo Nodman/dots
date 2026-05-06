@@ -18,11 +18,18 @@
 [mergetool]
 	prompt = false
 [user]
-	name = Nodman
-	email = rewind-pewter.0e@icloud.com
+	name = Dmytro Burmistrov
+	email = dmytro.burmistrov@preply.com
+	signingkey = /Users/dmytro.burmistrov/.ssh/id_ed25519
 [core]
 	excludesfile = ~/.gitignore
 [init]
 	defaultBranch = main
 [pull]
 	rebase = false
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed_signers

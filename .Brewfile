@@ -13,9 +13,11 @@ brew "imagemagick"
 brew "jq"
 brew "neovim"
 brew "ripgrep"
+brew "tree-sitter-cli"
 brew "tmux"
 brew "trash", link: true
 brew "wget"
+brew rbenv
 cask "font-symbols-only-nerd-font"
 cask "hammerspoon"
 cask "handbrake-app"

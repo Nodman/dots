@@ -18,6 +18,9 @@ return {
     { "<leader>dr", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
   },
   opts = {
+    env = {
+      COLORTERM = "truecolor",
+    },
     diff_opts = {
       auto_close_on_accept = true,
       vertical_split = true,

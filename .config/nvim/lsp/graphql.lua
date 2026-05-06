@@ -48,6 +48,7 @@ return {
   -- Includes .graphql files and inline GraphQL in React files
   filetypes = {
     'graphql',         -- .graphql files
+    'typescript',
     'typescriptreact', -- .tsx files (for inline gql`` tags)
     'javascriptreact', -- .jsx files (for inline gql`` tags)
   },

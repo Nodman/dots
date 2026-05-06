@@ -172,12 +172,6 @@ return {
     -- Node modules resolution path (relative to workspace folder)
     nodePath = '',
 
-    -- Working directory mode for ESLint execution
-    -- 'auto' uses workspace folder or file location as working directory
-    workingDirectory = {
-      mode = 'auto', -- 'auto' | 'location'
-    },
-
     -- Code action settings
     codeAction = {
       -- Disable rule comment settings
@@ -208,6 +202,13 @@ return {
     config.settings.workspaceFolder = {
       uri = root_dir,
       name = vim.fn.fnamemodify(root_dir, ':t'),
+    }
+
+    -- Pin working directory to the project root so relative paths in .eslintrc.js
+    -- (e.g. rulesdir plugin's ".eslint/custom-rules") resolve correctly regardless
+    -- of which file is open.
+    config.settings.workingDirectory = {
+      directory = root_dir,
     }
 
     -- Auto-detect flat config files

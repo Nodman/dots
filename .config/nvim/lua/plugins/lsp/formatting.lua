@@ -40,14 +40,21 @@ return {
           local eslint_client = vim.lsp.get_clients({ name = "eslint", bufnr = bufnr })[1]
 
           if vtsls_client then
-            local request_result = vtsls_client:request_sync("workspace/executeCommand", {
-              command = "source.fixAll.ts",
-              arguments = { vim.api.nvim_buf_get_name(bufnr) },
-            })
-
-            if request_result and request_result.err then
-              vim.notify(request_result.err.message, vim.log.levels.ERROR)
-              return
+            local params = vim.lsp.util.make_range_params(0, vtsls_client.offset_encoding)
+            params.context = { diagnostics = {}, only = { "source.fixAll.ts" }, triggerKind = 1 }
+            local result = vtsls_client:request_sync("textDocument/codeAction", params, 5000, bufnr)
+            if result and not result.err and result.result then
+              for _, action in ipairs(result.result) do
+                if action.edit then
+                  vim.lsp.util.apply_workspace_edit(action.edit, vtsls_client.offset_encoding)
+                end
+                if action.command then
+                  local cmd = type(action.command) == "string"
+                    and { command = action.command }
+                    or action.command
+                  vtsls_client:request_sync("workspace/executeCommand", cmd, 2000, bufnr)
+                end
+              end
             end
           end
 

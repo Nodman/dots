@@ -147,7 +147,9 @@ fi
 # Set up fnm (Node.js version manager)
 log_info "Setting up fnm..."
 if command -v fnm &>/dev/null; then
-  # Install latest LTS Node.js
+  # fnm use/default require FNM_MULTISHELL_PATH from `fnm env`,
+  # which isn't set when this script runs in a fresh shell.
+  eval "$(fnm env)"
   fnm install --lts
   fnm use lts-latest
   fnm default lts-latest

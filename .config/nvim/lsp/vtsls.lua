@@ -96,11 +96,9 @@ return {
     "vue",
   },
 
-  -- Project root detection markers
-  -- The LSP looks for these files/directories to determine the project root
-  -- For monorepos, vtsls will automatically handle multiple packages
+  -- Omit package.json: a nested src/package.json would otherwise be found first
+  -- and shadow the repo root's tsconfig, breaking baseUrl-based src/ aliases.
   root_markers = {
-    "package.json",
     "tsconfig.json",
     "jsconfig.json",
     ".git",
