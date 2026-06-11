@@ -5,7 +5,7 @@ return {
   dependencies = { "folke/snacks.nvim" },
   config = true,
   keys = {
-    { toggle_key, "<cmd>ClaudeCodeFocus<cr>", desc = "Claude Code", mode = { "n", "x" } },
+    { toggle_key, "<cmd>ClaudeCodeFocus<cr>", desc = "Claude Code", mode = { "n", "x", "t" } },
     { "<leader>a", nil, desc = "AI/Claude Code" },
     { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
     { "<leader>ad", "<cmd>ClaudeCode --dangerously-skip-permissions<cr>", desc = "Toggle Claude (--dsp)" },
@@ -17,6 +17,22 @@ return {
     { "<leader>da", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
     { "<leader>dr", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
   },
+  cmd = {
+    "ClaudeCode",
+    "ClaudeCodeFocus",
+    "ClaudeCodeSelectModel",
+    "ClaudeCodeAdd",
+    "ClaudeCodeSend",
+    "ClaudeCodeTreeAdd",
+    "ClaudeCodeStatus",
+    "ClaudeCodeStart",
+    "ClaudeCodeStop",
+    "ClaudeCodeOpen",
+    "ClaudeCodeClose",
+    "ClaudeCodeDiffAccept",
+    "ClaudeCodeDiffDeny",
+    "ClaudeCodeCloseAllDiffs",
+  },
   opts = {
     env = {
       COLORTERM = "truecolor",
@@ -25,10 +41,11 @@ return {
       auto_close_on_accept = true,
       vertical_split = true,
       open_in_current_tab = false,
-      keep_terminal_focus = true, -- If true, moves focus back to terminal after diff opens
+      keep_terminal_focus = false, -- If true, moves focus back to terminal after diff opens
     },
     terminal_cmd = "~/.local/bin/claude", -- Point to local installation
     terminal = {
+      -- provider = "native",
       ---@module "snacks"
       ---@type snacks.win.Config|{}
       snacks_win_opts = {

@@ -85,24 +85,28 @@ function M.refresh(size)
 
   -- Check if current window has special width - if so, don't resize anything
   local currentFiletype = ""
+  local currentBuftype = ""
   local success, result = pcall(function()
     if api.nvim_win_is_valid(currentWindowId) then
       local bufId = api.nvim_win_get_buf(currentWindowId)
       if api.nvim_buf_is_valid(bufId) and api.nvim_buf_is_loaded(bufId) then
-        return vim.bo[bufId].filetype
+        return { filetype = vim.bo[bufId].filetype, buftype = vim.bo[bufId].buftype }
       end
     end
     return nil
   end)
 
   if success and result then
-    currentFiletype = result
+    currentFiletype = result.filetype
+    currentBuftype = result.buftype
   end
 
   local currentHasSpecialWidth = M.config.specialWidths[currentFiletype] ~= nil
 
-  if currentHasSpecialWidth then
-    -- Current window has special width, don't resize any windows
+  -- Terminal windows must never shrink/grow on focus: leave the layout untouched
+  -- when a terminal is focused, mirroring the unfocused width-preservation below.
+  if currentHasSpecialWidth or currentBuftype == "terminal" then
+    -- Current window has special/fixed width, don't resize any windows
     return
   end
 
@@ -114,21 +118,23 @@ function M.refresh(size)
 
   for _, id in ipairs(currentRowWindowIds) do
     local filetype = "" -- Default to empty string if filetype cannot be determined
+    local buftype = "" -- Default to empty string if buftype cannot be determined
     local success, result = pcall(function()
       -- Check if window and buffer are valid before accessing buffer options
       if api.nvim_win_is_valid(id) then
         local bufId = api.nvim_win_get_buf(id)
         if api.nvim_buf_is_valid(bufId) and api.nvim_buf_is_loaded(bufId) then
-          return vim.bo[bufId].filetype
+          return { filetype = vim.bo[bufId].filetype, buftype = vim.bo[bufId].buftype }
         end
       end
       return nil -- Indicate failure or invalid state
     end)
 
     if success and result then
-      filetype = result -- Assign the retrieved filetype
+      filetype = result.filetype -- Assign the retrieved filetype
+      buftype = result.buftype -- Assign the retrieved buftype
     end
-    -- else: filetype remains "", pcall failed or window/buffer invalid
+    -- else: filetype/buftype remain "", pcall failed or window/buffer invalid
 
     local isCurrent = (id == currentWindowId)
     local specialWidthFn = M.config.specialWidths[filetype]
@@ -136,6 +142,11 @@ function M.refresh(size)
 
     if specialWidthFn then
       targetWidth = specialWidthFn(totalWidth, minWidth, id, isCurrent)
+    end
+
+    -- Terminal windows must never shrink: preserve their current width when not focused.
+    if not targetWidth and not isCurrent and buftype == "terminal" then
+      targetWidth = api.nvim_win_get_width(id)
     end
 
     if targetWidth then

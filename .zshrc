@@ -130,3 +130,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 #WOL
 alias wake-pc='ssh spooner@192.168.88.1 \"/tool wol interface=bridge mac=7C:10:C9:BE:4F:FD"'
 
+export PATH=$PATH:$HOME/.maestro/bin

@@ -102,6 +102,53 @@ map("n", "<Leader>2", "<CMD>2wincmd w<CR>")
 map("n", "<Leader>3", "<CMD>3wincmd w<CR>")
 map("n", "<Leader>4", "<CMD>4wincmd w<CR>")
 
+-- track the last focused "normal editable" window (skip terminals, trees, pickers, floats)
+local last_editable_win = nil
+
+local function is_editable_win(win)
+  if not vim.api.nvim_win_is_valid(win) then
+    return false
+  end
+  -- ignore floating windows
+  if vim.api.nvim_win_get_config(win).relative ~= "" then
+    return false
+  end
+  local buf = vim.api.nvim_win_get_buf(win)
+  if vim.bo[buf].buftype ~= "" then
+    return false -- terminal, nofile, prompt, quickfix, help, etc.
+  end
+  if not vim.bo[buf].modifiable then
+    return false
+  end
+  return true
+end
+
+vim.api.nvim_create_autocmd("WinLeave", {
+  group = vim.api.nvim_create_augroup("track_editable_win", { clear = true }),
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    if is_editable_win(win) then
+      last_editable_win = win
+    end
+  end,
+})
+
+-- focus last editable window
+map("n", "<Leader>0", function()
+  local cur = vim.api.nvim_get_current_win()
+  if last_editable_win and last_editable_win ~= cur and is_editable_win(last_editable_win) then
+    vim.api.nvim_set_current_win(last_editable_win)
+    return
+  end
+  -- fallback: pick any other editable window
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if win ~= cur and is_editable_win(win) then
+      vim.api.nvim_set_current_win(win)
+      return
+    end
+  end
+end, { desc = "Window: Focus last editable" })
+
 -- scroll through command mode with C-j and C-k
 map("c", "<C-j>", "<C-n>")
 map("c", "<C-k>", "<C-p>")

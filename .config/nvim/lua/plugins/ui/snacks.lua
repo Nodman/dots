@@ -237,6 +237,14 @@ return {
         end,
         desc = "Git Log File",
       },
+      {
+        "<leader>gO",
+        function()
+          Snacks.gitbrowse()
+        end,
+        desc = "Git Open in Browser",
+        mode = { "n", "v" },
+      },
       -- Grep
       {
         "<leader>sb",
