@@ -19,17 +19,10 @@
 	prompt = false
 [user]
 	name = Dmytro Burmistrov
-	email = dmytro.burmistrov@preply.com
-	signingkey = /Users/dmytro.burmistrov/.ssh/id_ed25519
+	email = nodman@icloud.com
 [core]
 	excludesfile = ~/.gitignore
 [init]
 	defaultBranch = main
 [pull]
 	rebase = false
-[gpg]
-	format = ssh
-[commit]
-	gpgsign = true
-[gpg "ssh"]
-	allowedSignersFile = ~/.ssh/allowed_signers
