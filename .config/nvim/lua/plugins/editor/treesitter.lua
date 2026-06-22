@@ -1,6 +1,7 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
     version = false,
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile", "BufWritePre", "VeryLazy" },
@@ -46,6 +47,7 @@ return {
         "graphql",
         "dockerfile",
         "ruby",
+        "swift",
       },
     },
     config = function(_, opts)
@@ -71,6 +73,7 @@ return {
 
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
     event = "VeryLazy",
     enabled = true,
     config = function()

@@ -27,8 +27,11 @@ return {
   -- Command to start the language server
   cmd = { 'sourcekit-lsp' },
 
-  -- Filetypes this server handles
-  filetypes = { 'swift', 'objective-c', 'objective-cpp' },
+  -- Filetypes this server handles.
+  -- Note: these are Neovim filetype names ('objc'/'objcpp'), which differ from
+  -- the LSP language IDs sourcekit-lsp expects ('objective-c'/'objective-cpp').
+  -- See get_language_id below for the translation.
+  filetypes = { 'swift', 'objc', 'objcpp' },
 
   -- Custom root directory detection with priority order
   -- This function implements a specific priority for Swift/Xcode projects:
@@ -83,12 +86,13 @@ return {
     on_dir(root)
   end,
 
-  -- Map Neovim filetypes to LSP language IDs
-  -- sourcekit-lsp expects specific language IDs for Objective-C variants
+  -- Map Neovim filetypes to LSP language IDs.
+  -- sourcekit-lsp expects the LSP-standard 'objective-c'/'objective-cpp'
+  -- language IDs, whereas Neovim names these filetypes 'objc'/'objcpp'.
   get_language_id = function(_, ftype)
     local filetype_map = {
-      ['objective-c'] = 'objective-c',
-      ['objective-cpp'] = 'objective-cpp',
+      objc = 'objective-c',
+      objcpp = 'objective-cpp',
     }
     return filetype_map[ftype] or ftype
   end,

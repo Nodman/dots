@@ -11,6 +11,7 @@ M.codelens = constants.codelens
 M.capabilities = constants.capabilities
 M.kind_filter = constants.kind_filter
 M.server_configs = constants.server_configs
+M.external_servers = constants.external_servers
 
 ---Setup LSP log notifications to show errors and warnings
 function M.setup_log_notifications()
@@ -135,6 +136,15 @@ function M.setup()
 
   -- 8. Get installed servers from Mason
   local servers_to_enable = mason.get_installed_servers()
+
+  -- 8b. Add servers provided by external toolchains (not Mason-managed),
+  -- e.g. sourcekit-lsp from the Swift/Xcode toolchain. Only enable when the
+  -- binary is actually available so machines without the toolchain stay quiet.
+  for server_name, executable in pairs(M.external_servers) do
+    if vim.fn.executable(executable) == 1 then
+      table.insert(servers_to_enable, server_name)
+    end
+  end
 
   -- 9. Load server configs with fallback to nvim-lspconfig reference
   -- Priority: local lsp/ dir (auto-loaded by Neovim) → nvim-lspconfig/lsp/ (manual fallback) → M.server_configs

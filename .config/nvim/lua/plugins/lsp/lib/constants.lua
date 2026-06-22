@@ -97,4 +97,14 @@ M.server_configs = {
   -- },
 }
 
+-- Servers provided by external toolchains rather than installed via Mason.
+-- Mason only knows about packages it manages, so these would never be passed
+-- to vim.lsp.enable() otherwise. Each entry maps the server name (matching a
+-- lsp/<name>.lua config) to the executable that must be present; the server is
+-- only enabled when that binary is on PATH, keeping machines without the
+-- toolchain quiet.
+M.external_servers = {
+  sourcekit = "sourcekit-lsp", -- ships with the Swift / Xcode toolchain
+}
+
 return M
