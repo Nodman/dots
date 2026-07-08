@@ -61,6 +61,14 @@ return {
             mode = "t",
             desc = "Hide",
           },
+          -- Drop into Normal mode in place so you can scroll / visually select /
+          -- yank the terminal like any buffer. Press i/a to resume typing.
+          term_normal = {
+            "<C-y>",
+            "<C-\\><C-n>",
+            mode = "t",
+            desc = "Normal mode (copy/scroll)",
+          },
         },
       },
     },
