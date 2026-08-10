@@ -39,7 +39,10 @@ return {
       open_in_new_tab = true,
       hide_terminal_in_new_tab = true,
     },
-    terminal_cmd = "~/.local/bin/claude", -- Point to local installation
+    -- pty-tmux-unwrap: claude sees $TMUX and wraps OSC 52 in tmux passthrough,
+    -- which nvim's :terminal can't parse (leaks "52;c;<base64>" into the UI).
+    -- The shim unwraps those sequences; nvim handles the raw OSC 52 natively.
+    terminal_cmd = "~/.local/scripts/pty-tmux-unwrap ~/.local/bin/claude",
     terminal = {
       -- provider = "native",
       ---@module "snacks"
