@@ -158,6 +158,14 @@ else
   log_warning "fnm not found, skipping Node.js setup"
 fi
 
+# Keyboard status lights (Massdrop CTRL) + Claude Code hooks
+log_info "Installing ctrl-led..."
+if "$DOTFILES_DIR/ctrl-led/install.sh"; then
+  log_success "ctrl-led installed"
+else
+  log_warning "ctrl-led install failed, skipping"
+fi
+
 # Configure macOS system defaults
 log_info "Configuring macOS system defaults..."
 if [[ -f "$DOTFILES_DIR/macos-defaults.sh" ]]; then
@@ -189,6 +197,7 @@ echo "  ✅ Hammerspoon configuration"
 echo "  ✅ Local scripts"
 echo "  ✅ AppleScript files"
 echo "  ✅ Node.js (via fnm)"
+echo "  ✅ ctrl-led keyboard status lights + Claude Code hooks"
 echo "  ✅ macOS system preferences"
 echo ""
 log_info "Enjoy your new Mac setup! 🚀"

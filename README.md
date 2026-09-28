@@ -26,6 +26,7 @@ Automated setup for a new macOS system with all my development tools, configurat
 - **Bat** - Enhanced cat with syntax highlighting
 - **Custom Scripts** - Personal utility scripts in `~/.local/scripts`
 - **AppleScript Files** - macOS automation scripts in `~/applescript`
+- **ctrl-led** - Massdrop CTRL status lights for Claude Code sessions (see below)
 
 ### Zsh Plugins
 - **zsh-autosuggestions** - Command completion
@@ -81,6 +82,7 @@ dotfiles/
 ├── .local/
 │   └── scripts/         # Custom utility scripts
 ├── applescript/         # AppleScript automation files
+├── ctrl-led/            # Keyboard status lights installer
 └── .zsh/               # Zsh plugins
     ├── zsh-autosuggestions/
     ├── zsh-syntax-highlighting/
@@ -88,6 +90,16 @@ dotfiles/
     ├── zsh-yarn-completions/
     └── wd/
 ```
+
+## ⌨️ Keyboard Status Lights (ctrl-led)
+
+Claude Code session state on the Massdrop CTRL keys. Needs the `spooner` firmware from [Nodman/qmk_firmware `ctrl-spooner`](https://github.com/Nodman/qmk_firmware/tree/ctrl-spooner/keyboards/massdrop/ctrl/keymaps/spooner).
+
+- Esc = summary, F1–F9 = one key per session
+- Orange blink = working, red fast blink = needs you, green = standby
+- `ctrl-led/install.sh` builds `~/.local/bin/ctrl-led` from the fork and adds hooks to `~/.claude/settings.json`
+- Safe to re-run. Pass a local `ctrl-led.swift` path to build from a local copy.
+- `ctrl-led claude list` shows sessions, `ctrl-led claude reset` clears them
 
 ## 🍎 macOS System Preferences
 
