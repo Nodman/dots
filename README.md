@@ -100,6 +100,7 @@ Claude Code session state on the Massdrop CTRL keys. Needs the `spooner` firmwar
 - `ctrl-led/install.sh` builds `~/.local/bin/ctrl-led` from the fork and adds hooks to `~/.claude/settings.json`
 - Safe to re-run. Pass a local `ctrl-led.swift` path to build from a local copy.
 - `ctrl-led claude list` shows sessions, `ctrl-led claude reset` clears them
+- tmux: `prefix F1`–`F9` jumps to that agent's pane, `prefix Esc` to the agent that needs you. A pane on another tmux server opens in a new WezTerm window.
 
 ## 🍎 macOS System Preferences
 
